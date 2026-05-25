@@ -249,7 +249,8 @@ export class HandSet {
     flag: number;
     agariPai: Pai;
     redCnt: number;
-    constructor(blocks: Block[], pair: Pair, dora: Pai[], ura: Pai[], type: MachiType, flag: number, agariPai: Pai, redCnt: number) {
+    nukiDora: Pai[];
+    constructor(blocks: Block[], pair: Pair, dora: Pai[], ura: Pai[], type: MachiType, flag: number, agariPai: Pai, redCnt: number, nukiDora: Pai[] = []) {
         this.blocks = blocks;
         this.pair = pair;
         this.dora = dora;
@@ -258,6 +259,7 @@ export class HandSet {
         this.flag = flag;
         this.agariPai = agariPai;
         this.redCnt = redCnt;
+        this.nukiDora = nukiDora;
     }
 }
 export class State {
@@ -268,10 +270,11 @@ export class State {
     ura: Pai[];
     agariPai: Pai;
     redCnt: number;
+    nukiDora: Pai[];
 
     constructor(field: PositionType, seat: PositionType, // 场风和自风
         yakus: number[], agariWay: number, // 役和和牌方式（用于计算flag)
-        pais: Pai[], furu: Block[], d: Pai[], u: Pai[], agariPai: Pai, redCnt: number) {
+        pais: Pai[], furu: Block[], d: Pai[], u: Pai[], agariPai: Pai, redCnt: number, nukiDora: Pai[] = []) {
         this.flag = 0;
         if (field != PositionType.EMPTY) {
             this.flag |= (1 << field);
@@ -304,5 +307,6 @@ export class State {
         this.agariPai.isAgari = true;
 
         this.redCnt = redCnt;
+        this.nukiDora = nukiDora;
     }
 }

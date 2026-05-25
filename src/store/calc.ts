@@ -1,7 +1,7 @@
 import { Result, Rule } from "./definition"
 import { Block, BlockType, CHIIHOU, HandSet, MachiType, ManType, MENZEN, Pai, Pair, PointType, RON, SEAT_EAST, State, TENHOU, TSUMO } from "./types"
 import { pType2Int, test } from "./util"
-import { AkaDora, ChanKan, Chantaiyao, Chiihou, Chiniisou, Chinroutou, ChuurenPoutou, Daisangen, Daisuushi, Dora, DoubleRiichi, HaiteiRaoyue, Honiisou, Honroutou, HouteiRaoyui, Iipeikou, Ikkitsuukan, Ippatsu, Junchantaiyao, JunseiChuurenPoutou, MenzenTsumo, Pinfu, Riichi, RinshanKaihou, Ryanpeikou, Ryuuiisou, Sanankou, Sankantsu, SanshokuDoujun, SanshokuDoukou, Shousangen, Shousuushi, Suuankou, SuuankouTanki, Suukantsu, TanYao, Tenhou, Toitoi, Tsuuiisou, Ura, Yaku, YakuhaiCyuu, YakuhaiFieldEast, YakuhaiFieldNorth, YakuhaiFieldSouth, YakuhaiFieldWest, YakuhaiHako, YakuhaiHatsu, YakuhaiSeatEast, YakuhaiSeatNorth, YakuhaiSeatSouth, YakuhaiSeatWest } from "./yaku"
+import { AkaDora, ChanKan, Chantaiyao, Chiihou, Chiniisou, Chinroutou, ChuurenPoutou, Daisangen, Daisuushi, Dora, DoubleRiichi, HaiteiRaoyue, Honiisou, Honroutou, HouteiRaoyui, Iipeikou, Ikkitsuukan, Ippatsu, Junchantaiyao, JunseiChuurenPoutou, MenzenTsumo, NukiDora, Pinfu, Riichi, RinshanKaihou, Ryanpeikou, Ryuuiisou, Sanankou, Sankantsu, SanshokuDoujun, SanshokuDoukou, Shousangen, Shousuushi, Suuankou, SuuankouTanki, Suukantsu, TanYao, Tenhou, Toitoi, Tsuuiisou, Ura, Yaku, YakuhaiCyuu, YakuhaiFieldEast, YakuhaiFieldNorth, YakuhaiFieldSouth, YakuhaiFieldWest, YakuhaiHako, YakuhaiHatsu, YakuhaiSeatEast, YakuhaiSeatNorth, YakuhaiSeatSouth, YakuhaiSeatWest } from "./yaku"
 
 
 //TODO 单例
@@ -39,6 +39,7 @@ export class Calculator{ // 计算器实例
             new Ippatsu(),
             new Dora(),
             new Ura(),
+            new NukiDora(),
             new AkaDora(),
             new Toitoi(),
             new Sanankou(),
@@ -407,6 +408,7 @@ export class Calculator{ // 计算器实例
         let dora=0
         let ura=0
         const akadora = this.nowHandSet!.redCnt
+        const nukiDora = new NukiDora().test(this.nowHandSet!, this.rule)
         for(const p of this.nowP){
             for(const d of this.nowHandSet!.dora){
                 if(p.equalTo(d.next()))dora++
@@ -418,7 +420,8 @@ export class Calculator{ // 计算器实例
         if(dora>0)yakuName.push(`宝牌: ${dora}翻`)
         if(ura>0)yakuName.push(`里宝牌: ${ura}翻`)
         if(akadora>0)yakuName.push(`赤宝牌: ${akadora}翻`)
-        cnt+=dora+ura+akadora
+        if(nukiDora>0)yakuName.push(`拔北: ${nukiDora}翻`)
+        cnt+=dora+ura+akadora+nukiDora
 
         // 辅助函数，计算一类简单的役
         function calcFlagYaku(this_:Calculator ,yaku:Yaku,isYakuman:boolean=false){
@@ -519,7 +522,7 @@ export class Calculator{ // 计算器实例
         this.rule=rule;
         this.nowHandSet = new HandSet([],
             new Pair('m', 1),state.dora,state.ura, MachiType.BIAN_ZHANG, // 默认，之后会被修改
-            state.flag,state.agariPai,state.redCnt)
+            state.flag,state.agariPai,state.redCnt,state.nukiDora)
         this.result = new Result()
 
         this.nowP = state.pais

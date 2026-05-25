@@ -332,7 +332,7 @@ export class Dora implements Yaku{
 }
 export class Ura implements Yaku{
     test(handSet:HandSet, rule:Rule){
-        let cnt = 0 
+        let cnt = 0
         const ura = handSet.ura
         for(const b of handSet.blocks){
             for(const p of b.getPai()){
@@ -352,6 +352,26 @@ export class Ura implements Yaku{
     }
     getName(){
         return "里宝牌"
+    }
+}
+export class NukiDora implements Yaku{
+    test(handSet:HandSet, rule:Rule){
+        let cnt = 0
+        const north = new Pai('z', 4)
+        for(const p of handSet.nukiDora){
+            if(!p.equalTo(north))continue
+            cnt++
+            for(const d of handSet.dora){
+                if(d.next().equalTo(p))cnt++
+            }
+            for(const u of handSet.ura){
+                if(u.next().equalTo(p))cnt++
+            }
+        }
+        return cnt
+    }
+    getName(){
+        return "拔北"
     }
 }
 export class AkaDora implements Yaku{
