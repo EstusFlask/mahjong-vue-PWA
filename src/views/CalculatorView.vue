@@ -443,7 +443,7 @@ export default {
       }
       let isMenzen = true
       let haveFuro = false
-      let haveKan = false
+      let haveKan = this.nuki.length > 0
 
       for(const b of this.furo){
         haveFuro=true
