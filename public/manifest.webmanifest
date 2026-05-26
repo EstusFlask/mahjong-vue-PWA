@@ -1,0 +1,33 @@
+{
+  "name": "在线日麻工具",
+  "short_name": "日麻工具",
+  "description": "可离线使用的日麻计分、牌型和练习工具。",
+  "id": ".",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0f766e",
+  "categories": ["utilities", "games"],
+  "icons": [
+    {
+      "src": "img/icons/pwa-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icons/pwa-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "img/icons/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
