@@ -5,7 +5,7 @@
 // })
 
 module.exports = {
-  publicPath:"/maj/",
+  publicPath:"/mahjong-vue-PWA/",
   chainWebpack: config=>{
     config.plugin('html').
     tap(args => {
