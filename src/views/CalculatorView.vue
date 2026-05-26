@@ -98,6 +98,11 @@
         <pai-select v-for="(pai,index) in dora" :key="index" 
           :name="pai" @click="removeSingle(dora,pai)"></pai-select>
       </div>
+      拔北
+      <div class="box nospace">
+        <pai-select v-for="(pai,index) in nuki" :key="index"
+          :name="pai" @click="removeSingle(nuki,pai)"></pai-select>
+      </div>
     </div>
     <div class="flex-col flex nospace">
       里宝牌指示牌
@@ -148,6 +153,7 @@ export default {
         {label:"碰", value:"pon"},
         {label:"杠", value:"kan"},
         {label:"暗杠", value:"ankan"},
+        {label:"拔北", value:"nuki"},
         {label:"宝牌指示牌", value:"dora"},
         {label:"里宝牌指示牌", value:"ura"},
       ],
@@ -176,6 +182,7 @@ export default {
       furo:[],
       dora:[],
       ura:[],
+      nuki:[],
       yakus:[],
       mode:"pai",
       agariWay:"tsumo",
@@ -192,6 +199,7 @@ export default {
         if(this.mode=='pai')this.addSingle(this.hand,name);
         else if(this.mode=='dora')this.addSingle(this.dora,name);
         else if(this.mode=='ura')this.addSingle(this.ura,name);
+        else if(this.mode=='nuki')this.addSingle(this.nuki,name);
         else this.addMulti(name);
       }
     },
@@ -202,8 +210,7 @@ export default {
       this.furo.push({type:this.mode,name:na});
     },
     removeSingle(obj, name){
-      // TODO 在hand为11p234s1p时，点击最后一个1p会删除第一个1p
-      obj.splice(this.hand.findIndex((x)=>{return x==name}),1)
+      obj.splice(obj.findIndex((x)=>{return x==name}),1)
     },
     removeMulti(name){
       // TODO 在hand为11p234s1p时，点击最后一个1p会删除第一个1p
@@ -213,6 +220,7 @@ export default {
       this.hand=[],
       this.furo=[],
       this.ura=[],
+      this.nuki=[],
       this.yakus=[],
       this.mode='pai',
       this.agariWay='tsumo',
@@ -264,6 +272,8 @@ export default {
       for(const p of this.dora)tDora.push(cvtPai(p));
       let tUra=[]
       for(const p of this.ura)tUra.push(cvtPai(p));
+      let tNuki=[]
+      for(const p of this.nuki)tNuki.push(cvtPai(p));
 
       let tBlock = [];
       for(const b of this.furo)tBlock.push(cvtFuro(b));
@@ -272,7 +282,7 @@ export default {
       for(const y of this.yakus)tYaku.push(cvtYaku(y));
 
       let s = new State(
-        tField,tSeat,tYaku,tAgariWay,tPai,tBlock,tDora,tUra,tAgariPai,this.red
+        tField,tSeat,tYaku,tAgariWay,tPai,tBlock,tDora,tUra,tAgariPai,this.red,tNuki
       )
 
       let c = new Calculator()
@@ -313,6 +323,9 @@ export default {
         paiLeft[p]--;
       }
       for(const p of this.ura){
+        paiLeft[p]--;
+      }
+      for(const p of this.nuki){
         paiLeft[p]--;
       }
       for(const x of this.furo){
@@ -374,6 +387,11 @@ export default {
           }
         }
       }
+      else if(this.mode == 'nuki'){
+        for(const name in rt){
+          rt[name] = name != '4z' || this.nuki.length==4 || paiLeft[name]<1
+        }
+      }
       else{
         if(this.furo.length== Math.floor((14-this.hand.length)/3)){
           for(const name in rt){
@@ -425,7 +443,7 @@ export default {
       }
       let isMenzen = true
       let haveFuro = false
-      let haveKan = false
+      let haveKan = this.nuki.length > 0
 
       for(const b of this.furo){
         haveFuro=true
@@ -519,6 +537,7 @@ export default {
         if(name.startsWith("里宝牌"))continue;
         if(name.startsWith("赤宝牌"))continue;
         if(name.startsWith("红宝牌"))continue;
+        if(name.startsWith("拔北"))continue;
         console.log(name)
         hasExceptDora = true;
       }
