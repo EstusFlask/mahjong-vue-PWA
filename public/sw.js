@@ -1,6 +1,6 @@
-const CACHE_NAME = 'mahjong-vue-pwa-v1'
+const CACHE_NAME = 'mahjong-vue-pwa-v2'
 
-const APP_SHELL = [
+const APP_SHELL = self.__PRECACHE_ASSETS__ || [
   './',
   './manifest.webmanifest',
   './favicon.ico',
