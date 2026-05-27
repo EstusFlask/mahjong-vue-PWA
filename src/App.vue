@@ -21,11 +21,7 @@
       <router-view :rule="rule"/>
     </div>
 
-    <footer>            
-      <div>©2022-2023 linlexiao.com 版权所有 | 
-        <a target="_blank" href="https://beian.miit.gov.cn/"> 沪ICP备2022025418号-2</a>
-      </div>
-    </footer>
+
 
     <!-- 设置修改框  -->
     <n-modal
@@ -107,7 +103,7 @@
 
       <div>
         <p>
-            本项目采用 Vue 构建，核心逻辑使用 JavaScript 实现，并在 Github 上开源。项目地址 <a href="https://github.com/linlexiao0/mahjong-vue">https://github.com/linlexiao0/mahjong-vue</a>。欢迎提出 Pull Requests 或 Fork 你自己的版本！
+            本项目采用 Vue 构建，核心逻辑使用 JavaScript 实现，使用 PWA 实现跨平台、可安装的本地与 Web 应用。并在 Github 上开源。项目地址 <a href="https://github.com/EstusFlask/mahjong-vue-PWA">https://github.com/EstusFlask/mahjong-vue-PWA</a>。基于<a href="https://github.com/llx07/mahjong-vue">https://github.com/llx07/mahjong-vue</a>修改
         </p>
 
         <p>
@@ -119,7 +115,7 @@
         </p>
 
         <p>
-          如果有什么意见和想法，可以在 Github 上提出 Issue，或也可以联系我的邮箱 <a href="mailto://linlexiao2007@outlook.com">linlexiao2007@outlook.com</a>。
+          如果有什么意见和想法，可以在 Github 上提出 Issue。
         </p>
 
         
