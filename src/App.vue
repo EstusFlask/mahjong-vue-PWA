@@ -1,20 +1,38 @@
 <template>
   <div id="root">
-    <header>
-      <n-space>
-        <router-link class="nav" to="/calculator">计算器</router-link>
-        <div class="nav">|</div>
-        <router-link class="nav" to="/practice">点数练习</router-link>
-      </n-space>
+    <header class="app-header lggc">
+      <nav class="nav-shell" aria-label="主导航">
+        <div class="brand-mark" aria-label="雀算">雀算</div>
+        <div class="nav-links">
+          <router-link class="nav" to="/calculator">计算器</router-link>
+          <router-link class="nav" to="/practice">点数练习</router-link>
+        </div>
+      </nav>
 
-      <n-space justify="end" id="nav-buttons">
-        <n-icon size="2rem" @click="showInfo=!showInfo" color="#333">
-          <InfoRound/>
-        </n-icon>
-        <n-icon size="2rem" @click="showSetting=!showSetting" color="#333">
-          <SettingsRound/>
-        </n-icon>
-      </n-space>
+      <div id="nav-buttons" aria-label="辅助功能">
+        <button
+          class="icon-button pressable"
+          type="button"
+          aria-label="关于"
+          title="关于"
+          @click="showInfo=!showInfo"
+        >
+          <n-icon size="1.25rem">
+            <InfoRound/>
+          </n-icon>
+        </button>
+        <button
+          class="icon-button pressable"
+          type="button"
+          aria-label="设置"
+          title="设置"
+          @click="showSetting=!showSetting"
+        >
+          <n-icon size="1.25rem">
+            <SettingsRound/>
+          </n-icon>
+        </button>
+      </div>
     </header>
     
     <div id="content">
@@ -28,66 +46,93 @@
       v-model:show="showSetting"
       class="custom-card"
       preset="card"
-      :style="{width:'37.5rem'}"
-      title="自定义设置"
+      :style="{width:'min(37.5rem, calc(100vw - 2rem))'}"
+      title="设置"
+      closable
+      :mask-closable="true"
       :bordered="false"
       @after-leave="updateData"
     >
-      <n-grid :cols="2" :y-gap="3">
-        <n-grid-item>食断：</n-grid-item>
-        <n-grid-item>
-          <n-radio-group v-model:value="rule.shiDuan">
+      <div class="settings-intro">
+        <div>
+          <p class="modal-kicker">规则偏好</p>
+          <h3>本地规则</h3>
+          <p>更改会即时影响计算，并在关闭时保存。</p>
+        </div>
+        <span class="settings-live"><span class="settings-live-dot"></span>即时生效</span>
+      </div>
+
+      <div class="settings-list">
+        <div class="settings-row">
+          <div class="settings-label">
+            <strong>食断</strong>
+            <span>允许副露断幺九</span>
+          </div>
+          <n-radio-group v-model:value="rule.shiDuan" class="settings-segmented">
             <n-radio-button
               v-for="o in settings[0]" :key="o.value"
               :value="o.value"
               :label="o.label"
             />
           </n-radio-group>
-        </n-grid-item>
-        
-        <n-grid-item>多倍役满：</n-grid-item>
-        <n-grid-item>
-          <n-radio-group v-model:value="rule.duoBeiYiMan">
-          <n-radio-button
-            v-for="o in settings[0]" :key="o.value"
-            :value="o.value"
-            :label="o.label"
-          />
-          </n-radio-group>
-        </n-grid-item>
+        </div>
 
-        <n-grid-item>复合役满：</n-grid-item> 
-        <n-grid-item>
-          <n-radio-group v-model:value="rule.fuHeYiMan">
-          <n-radio-button
-            v-for="o in settings[0]" :key="o.value"
-            :value="o.value"
-            :label="o.label"
-          />
+        <div class="settings-row">
+          <div class="settings-label">
+            <strong>多倍役满</strong>
+            <span>役满可按倍数累计</span>
+          </div>
+          <n-radio-group v-model:value="rule.duoBeiYiMan" class="settings-segmented">
+            <n-radio-button
+              v-for="o in settings[0]" :key="o.value"
+              :value="o.value"
+              :label="o.label"
+            />
           </n-radio-group>
-        </n-grid-item>
-        <n-grid-item>连风雀头：</n-grid-item>
-        <n-grid-item>
-          <n-radio-group v-model:value="rule.lianFeng4">
-          <n-radio-button
-            v-for="o in settings[1]" :key="o.value"
-            :value="o.value"
-            :label="o.label"
-          />
-          </n-radio-group>
-        </n-grid-item>
+        </div>
 
-        <n-grid-item>13翻及以上：</n-grid-item> 
-        <n-grid-item>
-          <n-radio-group v-model:value="rule.allowLeiMan">
-          <n-radio-button
-            v-for="o in settings[2]" :key="o.value"
-            :value="o.value"
-            :label="o.label"
-          />
-        </n-radio-group>
-        </n-grid-item>
-      </n-grid>
+        <div class="settings-row">
+          <div class="settings-label">
+            <strong>复合役满</strong>
+            <span>允许多个役满同时成立</span>
+          </div>
+          <n-radio-group v-model:value="rule.fuHeYiMan" class="settings-segmented">
+            <n-radio-button
+              v-for="o in settings[0]" :key="o.value"
+              :value="o.value"
+              :label="o.label"
+            />
+          </n-radio-group>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-label">
+            <strong>连风雀头</strong>
+            <span>连风雀头的符数</span>
+          </div>
+          <n-radio-group v-model:value="rule.lianFeng4" class="settings-segmented">
+            <n-radio-button
+              v-for="o in settings[1]" :key="o.value"
+              :value="o.value"
+              :label="o.label"
+            />
+          </n-radio-group>
+        </div>
+
+        <div class="settings-row">
+          <div class="settings-label">
+            <strong>13翻及以上</strong>
+            <span>累计役满或三倍满</span>
+          </div>
+          <n-radio-group v-model:value="rule.allowLeiMan" class="settings-segmented">
+            <n-radio-button
+              v-for="o in settings[2]" :key="o.value"
+              :value="o.value"
+              :label="o.label"
+            />
+          </n-radio-group>
+        </div>
+      </div>
     </n-modal>
 
     
@@ -96,8 +141,10 @@
       v-model:show="showInfo"
       class="custom-card"
       preset="card"
-      :style="{width:'37.5rem'}"
+      :style="{width:'min(37.5rem, calc(100vw - 2rem))'}"
       title="关于"
+      closable
+      :mask-closable="true"
       :bordered="false"
     >
 
@@ -136,7 +183,7 @@
 
 <script>
   import { Rule } from './store/definition'
-  import { NModal,NRadioGroup,NRadioButton, NGrid, NGridItem, NIcon, NSpace} from 'naive-ui'
+  import { NModal,NRadioGroup,NRadioButton, NIcon} from 'naive-ui'
   import { SettingsRound,InfoRound } from '@vicons/material'
 
   export default{
@@ -156,7 +203,7 @@
       }
     },
     components: {
-      NModal,NRadioGroup,NRadioButton,NGrid, NGridItem,NIcon,NSpace,
+      NModal,NRadioGroup,NRadioButton,NIcon,
       SettingsRound,InfoRound
     },
     created(){
@@ -172,90 +219,653 @@
   }
 </script>
 
-<style scoped>
-  
-  #bk{
-    margin-left: 3.75rem;
+<style>
+  :root {
+    color-scheme: light;
+    font: 100%/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    --ink-950: #f7fcff;
+    --ink-900: #eef7fc;
+    --ink-850: #e4f1f8;
+    --surface: rgba(255, 255, 255, 0.58);
+    --surface-strong: rgba(255, 255, 255, 0.88);
+    --surface-soft: rgba(255, 255, 255, 0.42);
+    --line: rgba(82, 121, 153, 0.16);
+    --line-strong: rgba(82, 121, 153, 0.28);
+    --text: #1f2a44;
+    --muted: #64758b;
+    --teal: #198eb0;
+    --teal-strong: #08779d;
+    --amber: #c77c2f;
+    --danger: #c65d70;
+    --success: #318d68;
+    --purple: #8070cc;
+    --peach: #e3a16f;
+    --lggc-radius: 1.35rem;
+    --lggc-padding: 1rem 1.25rem;
+    --lggc-bg: rgba(255, 255, 255, 0.52);
+    --lggc-border: rgba(62, 97, 126, 0.12);
+    --lggc-blur: 1.25rem;
+    --lggc-highlight: rgba(255, 255, 255, 0.92);
+    --radius-lg: 1.25rem;
+    --radius-md: 0.85rem;
+    --shadow-lg: 0 1.8rem 4rem rgba(44, 83, 113, 0.14);
+    --shadow-sm: 0 0.8rem 1.8rem rgba(44, 83, 113, 0.1);
   }
 
-  #root{
-    --nav-height: 2.5rem  ;
-    --nav-padding: 0.25rem  ;
+  * {
+    box-sizing: border-box;
   }
-  
 
-  header,footer{
+  html,
+  body,
+  #app {
+    min-height: 100%;
+    margin: 0;
+  }
+
+  html {
+    background: var(--ink-950);
+  }
+
+  body {
+    background:
+      radial-gradient(circle at 6% 0%, rgba(137, 205, 255, 0.38), transparent 29rem),
+      radial-gradient(circle at 96% 10%, rgba(218, 205, 255, 0.42), transparent 31rem),
+      radial-gradient(circle at 50% 82%, rgba(203, 247, 224, 0.3), transparent 34rem),
+      linear-gradient(145deg, #fbfeff 0%, var(--ink-950) 52%, #f2f9fb 100%);
+    color: var(--text);
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  body::before,
+  body::after {
+    border-radius: 50%;
+    content: "";
+    filter: blur(2.5rem);
+    pointer-events: none;
+    position: fixed;
+    z-index: -1;
+  }
+
+  body::before {
+    background: rgba(178, 227, 255, 0.28);
+    height: 25rem;
+    left: -9rem;
+    top: 18rem;
+    width: 25rem;
+  }
+
+  body::after {
+    background: rgba(255, 218, 194, 0.25);
+    bottom: -9rem;
+    height: 28rem;
+    right: -8rem;
+    width: 28rem;
+  }
+
+  body,
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
+  button,
+  a {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    --nav-height: 4.5rem;
+    isolation: isolate;
+    min-height: 100vh;
+    position: relative;
+  }
+
+  .app-header,
+  footer {
     z-index: 5;
   }
 
-  header{
-    height: var(--nav-height);
-    text-align: center;
-    position: fixed;
-    width: calc(100% - 2.4rem);
-    top: 0;
-    left:0;
+  .app-header {
+    align-items: center;
+    backdrop-filter: blur(1.35rem) saturate(160%);
+    background: rgba(255, 255, 255, 0.6);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.78);
+    box-shadow: 0 0.7rem 2rem rgba(60, 98, 126, 0.08);
     display: flex;
-    padding: var(--nav-padding) 1.2rem;
+    gap: 1rem;
+    height: var(--nav-height);
+    justify-content: space-between;
+    padding: 0.7rem clamp(1rem, 4vw, 3.2rem);
+    position: fixed;
+    top: 0;
+    width: 100%;
+  }
+
+  .nav-shell,
+  .nav-links,
+  #nav-buttons {
+    align-items: center;
+    display: flex;
+  }
+
+  .nav-shell {
+    gap: 1.3rem;
+  }
+
+  .brand-mark {
+    color: var(--text);
+    font-size: 1.18rem;
+    font-weight: 750;
+    letter-spacing: -0.04em;
+    white-space: nowrap;
+  }
+
+  .brand-mark::after {
+    background: var(--teal);
+    border-radius: 999px;
+    content: "";
+    display: inline-block;
+    height: 0.35rem;
+    margin: 0 0 0.1rem 0.34rem;
+    width: 0.35rem;
+  }
+
+  .nav-links {
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: 999px;
+    gap: 0.2rem;
+    padding: 0.2rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0.4rem 1.2rem rgba(44, 83, 113, 0.06);
+  }
+
+  .nav {
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 0.92rem;
+    font-weight: 650;
+    letter-spacing: 0.01em;
+    padding: 0.55rem 0.95rem;
+    text-align: center;
+    text-decoration: none;
+    transition:
+      background-color 180ms ease,
+      color 180ms ease,
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .nav:hover {
+    color: var(--teal-strong);
+    transform: translateY(-0.05rem);
+  }
+
+  a.nav.router-link-exact-active {
+    background: rgba(255, 255, 255, 0.78);
+    box-shadow: 0 0.35rem 0.8rem rgba(46, 123, 161, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    color: var(--teal-strong);
+  }
+
+  #nav-buttons {
+    gap: 0.35rem;
+  }
+
+  .icon-button {
+    align-items: center;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: 0.75rem;
+    color: var(--muted);
+    cursor: pointer;
+    display: inline-flex;
+    height: 2.35rem;
+    justify-content: center;
+    padding: 0;
+    width: 2.35rem;
+  }
+
+  .icon-button:hover {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(25, 142, 176, 0.28);
+    color: var(--teal-strong);
+  }
+
+  .pressable {
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease,
+      box-shadow 180ms ease,
+      transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .pressable:active {
+    transform: scale(0.95) translateY(0.05rem);
+  }
+
+  .pressable:focus-visible,
+  .nav:focus-visible,
+  .tile-button:focus-visible {
+    outline: 0.15rem solid rgba(25, 142, 176, 0.7);
+    outline-offset: 0.18rem;
+  }
+
+  .lggc {
+    --lggc-radius: var(--radius-lg);
+    --lggc-padding: 1rem 1.25rem;
+    --lggc-bg: rgba(255, 255, 255, 0.52);
+    --lggc-border: rgba(62, 97, 126, 0.12);
+    --lggc-blur: 1.25rem;
+    --lggc-highlight: rgba(255, 255, 255, 0.92);
+    background: var(--lggc-bg);
+    border: 1px solid var(--lggc-border);
+    border-radius: var(--lggc-radius);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px var(--lggc-highlight),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.8),
+      inset 0 0 3px rgba(15, 23, 42, 0.14),
+      0 1rem 2rem rgba(44, 83, 113, 0.1);
+    isolation: isolate;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .app-header.lggc {
+    position: fixed;
+  }
+
+  .lggc::before,
+  .lggc::after {
+    border-radius: inherit;
+    content: "";
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .lggc::before {
+    border: 1px solid rgba(255, 255, 255, 0.58);
+    filter: blur(var(--lggc-blur));
+    height: calc(100% - 1rem);
+    left: 0.5rem;
+    top: 35%;
+    width: calc(100% - 1rem);
+  }
+
+  .lggc::after {
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.22), transparent 32%, rgba(255, 255, 255, 0.1));
+    inset: 0;
+  }
+
+  .lggc > * {
+    position: relative;
+    z-index: 1;
   }
 
   footer {
-    position: fixed ;
+    align-items: center;
     bottom: 0;
-    left:0;
-    width: 100%;
-    padding: 0;
-    margin: 0;
+    display: flex;
+    flex-direction: column;
     height: 2rem;
-    text-align: center;
-    align-content: center;
     justify-content: center;
-    align-items:center;
-    display:flex;
-    flex-direction:column;
-}
-
-  .nav {
-    height:var(--nav-height);
-    line-height: var(--nav-height);
+    left: 0;
+    margin: 0;
+    padding: 0;
+    position: fixed;
     text-align: center;
-    font-size: 1.5rem;
+    width: 100%;
   }
 
-  a.nav  {
-    font-weight: bold;
-    color: #2c3e50;
-  }
-  #nav-buttons{
-    flex-grow: 1;
-  }
-  
-  #nav-buttons svg{
-    cursor: pointer;
-  }
-  a.nav.router-link-exact-active {
-    color: #42b983;
-  }
-  .flex{
-    flex: auto;
+  #content {
+    margin: 0 auto;
+    max-width: 124rem;
+    padding: calc(var(--nav-height) + 0.25rem) clamp(0.9rem, 2.4vw, 2.6rem) 0.4rem;
   }
 
-  #content{
-    padding-top: var(--nav-height);
-    padding-bottom: 2rem;
-    padding-left: 2px;
-    padding-right: 2px;
+  .n-modal-container {
+    padding: 1rem;
   }
 
+  .n-modal-mask {
+    background: rgba(100, 132, 162, 0.18) !important;
+    backdrop-filter: blur(0.9rem) saturate(125%);
+    -webkit-backdrop-filter: blur(0.9rem) saturate(125%);
+    transition: background-color 180ms ease, backdrop-filter 220ms ease;
+  }
 
-  #modal::before{
-    content: "";
-    background-color: rgba(0,0,0,0.5);
-    z-index: 10;
-    position: absolute;
-    top:0;
-    left:0;
-    width:100%;
-    height: 100%;
+  .n-base-select-menu,
+  .n-dropdown-menu,
+  .n-popover {
+    background: rgba(255, 255, 255, 0.84) !important;
+    backdrop-filter: blur(1.1rem) saturate(145%);
+    -webkit-backdrop-filter: blur(1.1rem) saturate(145%);
+    border: 1px solid rgba(255, 255, 255, 0.82) !important;
+    border-radius: 0.82rem !important;
+    box-shadow: 0 1rem 2.2rem rgba(44, 83, 113, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+    color: var(--text);
+  }
+
+  .n-base-select-menu .n-base-select-option {
+    border-radius: 0.55rem;
+    color: var(--text);
+    margin: 0.12rem 0.2rem;
+    transition: background-color 140ms ease, color 140ms ease, transform 120ms ease;
+  }
+
+  .n-base-select-menu .n-base-select-option:hover,
+  .n-base-select-menu .n-base-select-option--pending {
+    background: rgba(213, 242, 255, 0.72) !important;
+    color: var(--teal-strong) !important;
+  }
+
+  .n-base-select-menu .n-base-select-option--selected {
+    color: var(--teal-strong) !important;
+    font-weight: 700;
+  }
+
+  .n-base-select-menu .n-base-select-option:active {
+    transform: scale(0.98);
+  }
+
+  .custom-card {
+    background:
+      radial-gradient(circle at 100% 0%, rgba(216, 205, 255, 0.34), transparent 14rem),
+      radial-gradient(circle at 0% 100%, rgba(193, 239, 255, 0.34), transparent 16rem),
+      rgba(255, 255, 255, 0.78);
+    backdrop-filter: blur(1.25rem) saturate(150%);
+    -webkit-backdrop-filter: blur(1.25rem) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.82);
+    border-radius: var(--radius-lg);
+    box-shadow:
+      inset 1px 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -1px 0 rgba(73, 113, 143, 0.1),
+      0 1.8rem 4rem rgba(44, 83, 113, 0.2);
+    color: var(--text);
+  }
+
+  .custom-card .n-card__header {
+    border-bottom: 1px solid rgba(82, 121, 153, 0.12);
+    color: var(--text);
+    padding: 1.2rem 1.35rem 0.95rem;
+  }
+
+  .custom-card .n-card__content {
+    color: var(--text);
+    padding: 1.1rem 1.35rem 1.35rem;
+  }
+
+  .custom-card .n-card-header__main,
+  .custom-card .n-card-header__title {
+    color: var(--text);
+    font-weight: 750;
+    letter-spacing: -0.03em;
+  }
+
+  .custom-card .n-card__close {
+    border-radius: 0.65rem;
+    color: var(--muted);
+    transition: background-color 150ms ease, color 150ms ease, transform 120ms ease;
+  }
+
+  .custom-card .n-card__close:hover {
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--teal-strong);
+  }
+
+  .custom-card .n-card__close:active {
+    transform: scale(0.94);
+  }
+
+  .custom-card a {
+    color: var(--teal-strong);
+    font-weight: 650;
+  }
+
+  .custom-card p {
+    line-height: 1.75;
+    margin: 0 0 0.85rem;
+  }
+
+  .custom-card ol {
+    margin-bottom: 0;
+  }
+
+  .custom-card .n-radio-button {
+    --n-button-color: rgba(255, 255, 255, 0.58);
+    --n-button-color-active: rgba(213, 242, 255, 0.9);
+    --n-button-border-color: rgba(82, 121, 153, 0.16);
+    --n-button-border-color-active: rgba(25, 142, 176, 0.36);
+    --n-button-text-color: var(--muted);
+    --n-button-text-color-active: var(--teal-strong);
+  }
+
+  .modal-kicker {
+    color: var(--teal-strong);
+    font-size: 0.68rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    margin: 0 0 0.2rem !important;
+    text-transform: uppercase;
+  }
+
+  .settings-intro {
+    align-items: flex-start;
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    margin-bottom: 0.9rem;
+  }
+
+  .settings-intro h3 {
+    color: var(--text);
+    font-size: 1.12rem;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+    margin: 0 0 0.25rem;
+  }
+
+  .settings-intro p:last-child {
+    color: var(--muted);
+    font-size: 0.76rem;
+    margin: 0 !important;
+  }
+
+  .settings-live {
+    align-items: center;
+    background: rgba(226, 248, 237, 0.7);
+    border: 1px solid rgba(49, 141, 104, 0.2);
+    border-radius: 999px;
+    color: var(--success);
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.68rem;
+    gap: 0.35rem;
+    padding: 0.36rem 0.55rem;
+  }
+
+  .settings-live-dot {
+    background: var(--success);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.2rem rgba(49, 141, 104, 0.12);
+    height: 0.38rem;
+    width: 0.38rem;
+  }
+
+  .settings-list {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .settings-row {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.3);
+    border: 1px solid rgba(82, 121, 153, 0.12);
+    border-radius: 0.9rem;
+    display: flex;
+    gap: 0.9rem;
+    justify-content: space-between;
+    min-height: 3.55rem;
+    padding: 0.58rem 0.65rem 0.58rem 0.82rem;
+    transition: background-color 160ms ease, border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+  }
+
+  .settings-row:hover {
+    background: rgba(255, 255, 255, 0.56);
+    border-color: rgba(25, 142, 176, 0.2);
+    box-shadow: 0 0.45rem 1rem rgba(44, 83, 113, 0.06);
+    transform: translateY(-0.04rem);
+  }
+
+  .settings-label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.13rem;
+    min-width: 0;
+  }
+
+  .settings-label strong {
+    color: var(--text);
+    font-size: 0.82rem;
+    font-weight: 720;
+  }
+
+  .settings-label span {
+    color: var(--muted);
+    font-size: 0.68rem;
+    line-height: 1.35;
+  }
+
+  .settings-segmented {
+    display: flex;
+    flex: 0 0 auto;
+  }
+
+  .custom-card .settings-segmented .n-radio-button {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.48) !important;
+    border: 1px solid rgba(82, 121, 153, 0.14) !important;
+    color: var(--muted) !important;
+    display: inline-flex;
+    font-size: 0.74rem;
+    font-weight: 650;
+    justify-content: center;
+    min-height: 2.15rem;
+    min-width: 3.1rem;
+    padding-inline: 0.55rem;
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 120ms ease;
+  }
+
+  .custom-card .settings-segmented .n-radio-button:hover:not(.n-radio-button--checked) {
+    background: rgba(220, 244, 255, 0.72) !important;
+    border-color: rgba(25, 142, 176, 0.28) !important;
+    color: var(--teal-strong) !important;
+  }
+
+  .custom-card .settings-segmented .n-radio-button--checked {
+    background: linear-gradient(135deg, #35a9d0, #268ac1) !important;
+    border-color: rgba(255, 255, 255, 0.72) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.3rem 0.7rem rgba(41, 135, 187, 0.16);
+    color: #ffffff !important;
+  }
+
+  .custom-card .settings-segmented .n-radio-button:active {
+    transform: scale(0.96);
+  }
+
+  .custom-card .settings-segmented .n-radio-button:first-child {
+    border-radius: 0.62rem 0 0 0.62rem;
+  }
+
+  .custom-card .settings-segmented .n-radio-button:last-child {
+    border-radius: 0 0.62rem 0.62rem 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      scroll-behavior: auto !important;
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .app-header,
+    .nav-links,
+    .icon-button {
+      backdrop-filter: none;
+      background: var(--surface-strong);
+    }
+
+    .lggc {
+      background: var(--surface-strong);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .custom-card {
+      backdrop-filter: none;
+      background: var(--surface-strong);
+    }
+
+    .n-modal-mask {
+      backdrop-filter: none;
+    }
+  }
+
+  @media screen and (max-width: 640px) {
+    #root {
+      --nav-height: 4.1rem;
+    }
+
+    .app-header {
+      padding-inline: 0.85rem;
+    }
+
+    .nav-shell {
+      gap: 0.65rem;
+    }
+
+    .brand-mark {
+      font-size: 1rem;
+    }
+
+    .nav {
+      font-size: 0.82rem;
+      padding-inline: 0.72rem;
+    }
+
+    #content {
+      padding-top: calc(var(--nav-height) + 0.9rem);
+      padding-inline: 0.75rem;
+    }
+
+    .custom-card .n-card__content {
+      padding: 0.95rem;
+    }
+
+    .settings-intro {
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .settings-row {
+      align-items: stretch;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+
+    .settings-segmented {
+      width: 100%;
+    }
+
+    .custom-card .settings-segmented .n-radio-button {
+      flex: 1;
+    }
   }
 </style>

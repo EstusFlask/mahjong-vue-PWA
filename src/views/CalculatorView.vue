@@ -1,125 +1,246 @@
-<template>  
-
-  <div class="flex-row">
-    <div>
-      <div v-for="row in paiName" :key="row" class="flex-row nowrap">
-        <pai-select v-for="pai in row" :key="pai" 
-          :name="pai" @click="add(pai)" :class="{disabled:isDisable[pai]}"></pai-select>
-      </div>
-    </div>
-    <div class="flex-row">
-      <div class="flex-col class1">
-        <n-button class="btn" @click="clearAll()" type="error" ghost size="large">清空</n-button>
-        <n-button class="btn" @click="myCalculate()" type="primary" ghost size="large"
-         :disabled="!calculateEnable">计算</n-button>
-        <n-divider class="line"/>
-        <n-grid :cols="3" :y-gap="3">
-          <n-grid-item>加入类型</n-grid-item>
-          <n-grid-item :span="2"><n-select v-model:value="mode" :options="optionMode"/></n-grid-item>
-          <n-grid-item>和了方式</n-grid-item>
-          <n-grid-item :span="2"><n-select v-model:value="agariWay" :options="optionAgariWay"/></n-grid-item>
-          <n-grid-item>场风</n-grid-item>
-          <n-grid-item :span="2"><n-select v-model:value="field" :options="optionWind"/></n-grid-item>
-          <n-grid-item>自风</n-grid-item>
-          <n-grid-item :span="2"><n-select v-model:value="seat" :options="optionWind"/></n-grid-item>
-        </n-grid>
-        <n-divider class="line"/>
-        
-        <n-grid :cols="3" :y-gap="3">
-          <n-grid-item>赤宝牌</n-grid-item>
-          <n-grid-item :span="2"><n-input-number v-model:value="red" size="large" :min="0"/></n-grid-item>
-          <n-grid-item>本场</n-grid-item>
-          <n-grid-item :span="2"><n-input-number v-model:value="ponba" size="large" :min="0" /></n-grid-item>
-        </n-grid>
-      </div>
-      <n-checkbox-group v-model:value="yakus" class="flex-col">
-          <n-checkbox v-for="item in yakuName" :key="item.value" size="large"
-            :value="item.value" :label="item.name" :disabled="isYakuDisable[item.value]"/>
-      </n-checkbox-group>
-    </div>
-
-    <div id="result">
-      <div v-if="isTrueAgari">
-        <div class="number">
-          <div v-if="result.pointType==2">{{result.point1}} / {{result.point2}}</div>
-          <div v-else-if="result.pointType==0">{{result.point1}} ALL</div>
-          <div v-else>{{result.point1}}</div>
+<template>
+  <main class="calculator-page" :class="{ 'is-dragging': draggingPai }">
+    <section class="surface-panel lggc palette-panel">
+      <div class="section-heading">
+        <div>
+          <p class="section-kicker">牌库</p>
+          <h1>构建你的和牌</h1>
+          <p class="section-description">点击牌面加入当前模式，也可以拖动到下方区域快速分区。</p>
         </div>
-        <div v-if="!result.isYakuman">{{result.han}}翻
-          <span v-if="needFu">{{result.fu}}符</span>
-          {{manName}}
-        </div>
-        <div v-else>{{result.han}}倍役满</div>
-        <ul>
-          <li v-for="(name,index) in result.yaku" :key="index">
-            {{name}}
-          </li>
-        </ul>
-
-        <div v-if="needFu">
-          符计算内容：
-          
-        <ul>
-          <li v-for="(name,index) in result.fuMessages" :key="index">
-            {{name}}
-          </li>
-        </ul>
+        <div class="gesture-note" :class="{ active: draggingPai }">
+          <span class="gesture-dot"></span>
+          {{ draggingPai ? `松开以${dropTargetLabel}` : '点击加牌 · 拖动可快速分区' }}
         </div>
       </div>
-      <div v-else>
-        <div class="number">
-          无役/无和牌型
+
+      <div class="tile-palette" aria-label="麻将牌库">
+        <div v-for="row in paiName" :key="row.join('-')" class="tile-row">
+          <pai-select
+            v-for="pai in row"
+            :key="pai"
+            :name="pai"
+            :data-testid="`palette-${pai}`"
+            :disabled="isDisable[pai]"
+            :class="{ disabled: isDisable[pai] }"
+            @click="add(pai)"
+            @drag-start="beginTileDrag"
+            @drag-move="moveTileDrag"
+            @drag-end="endTileDrag"
+            @drag-cancel="cancelTileDrag"
+          />
         </div>
       </div>
-    </div>
-  </div>
+    </section>
 
-  <div class="flex-row">
-    <div class="flex-col flex nospace">
-      手牌
-      <div class="box nospace">
-        <pai-select v-for="(pai,index) in hand" :key="index" 
-          :name="pai" @click="removeSingle(hand,pai)"></pai-select>
-      </div>
-    </div>
-    <div class="flex-col flex nospace">
-        副露
-      <div class="box nospace">
-        <block-select v-for="(item, index) in furo" :key="index"
-          :type="item.type" :name="item.name" @click="removeMulti(item)"></block-select>
-      </div>
-    </div>
-  </div>
-  
-  <div class="flex-row">
-    <div class="flex-col flex nospace">
-      宝牌指示牌 
-      <div class="box nospace">
-        <pai-select v-for="(pai,index) in dora" :key="index" 
-          :name="pai" @click="removeSingle(dora,pai)"></pai-select>
-      </div>
-      拔北
-      <div class="box nospace">
-        <pai-select v-for="(pai,index) in nuki" :key="index"
-          :name="pai" @click="removeSingle(nuki,pai)"></pai-select>
-      </div>
-    </div>
-    <div class="flex-col flex nospace">
-      里宝牌指示牌
-      <div class="box nospace">
-        <pai-select v-for="(pai,index) in ura" :key="index" 
-          :name="pai" @click="removeSingle(ura,pai)"></pai-select>
-      </div>
-    </div>
-  </div>
+    <section class="collections-grid">
+      <section class="surface-panel lggc collection-panel collection-hand">
+        <div class="collection-heading">
+          <div>
+            <span class="collection-title">手牌</span>
+            <span class="collection-count">{{ hand.length }} 张</span>
+          </div>
+          <span class="collection-help">点击移除</span>
+        </div>
+        <div class="box drop-zone" :class="dropZoneClass('hand')" data-drop-target="hand" data-testid="drop-hand"
+          @dragover.prevent="nativeDragOver('hand')" @drop.prevent="nativeDrop('hand')">
+          <span v-if="!hand.length" class="drop-placeholder">拖动牌面到此处加入手牌</span>
+          <pai-select v-for="(pai,index) in hand" :key="`${pai}-${index}`"
+            :name="pai" @click="removeSingle(hand,pai)"></pai-select>
+        </div>
+      </section>
 
-  
+      <section class="surface-panel lggc collection-panel collection-furo">
+        <div class="collection-heading">
+          <div>
+            <span class="collection-title">副露</span>
+            <span class="collection-count">{{ furo.length }} 组</span>
+          </div>
+          <span class="collection-help">点击移除</span>
+        </div>
+        <div class="box" data-testid="drop-furo">
+          <span v-if="!furo.length" class="drop-placeholder">从上方选择吃、碰或杠</span>
+          <block-select v-for="(item, index) in furo" :key="index"
+            :type="item.type" :name="item.name" @click="removeMulti(index)"></block-select>
+        </div>
+      </section>
+
+      <section class="surface-panel lggc collection-panel">
+        <div class="collection-heading">
+          <div>
+            <span class="collection-title">宝牌指示牌</span>
+            <span class="collection-count">{{ dora.length }} / 5</span>
+          </div>
+          <span class="collection-help">点击移除</span>
+        </div>
+        <div class="box drop-zone" :class="dropZoneClass('dora')" data-drop-target="dora" data-testid="drop-dora"
+          @dragover.prevent="nativeDragOver('dora')" @drop.prevent="nativeDrop('dora')">
+          <span v-if="!dora.length" class="drop-placeholder">拖动牌面到此处加入</span>
+          <pai-select v-for="(pai,index) in dora" :key="`${pai}-${index}`"
+            :name="pai" @click="removeSingle(dora,pai)"></pai-select>
+        </div>
+      </section>
+
+      <section class="surface-panel lggc collection-panel">
+        <div class="collection-heading">
+          <div>
+            <span class="collection-title">里宝牌指示牌</span>
+            <span class="collection-count">{{ ura.length }} / 5</span>
+          </div>
+          <span class="collection-help">点击移除</span>
+        </div>
+        <div class="box drop-zone" :class="dropZoneClass('ura')" data-drop-target="ura" data-testid="drop-ura"
+          @dragover.prevent="nativeDragOver('ura')" @drop.prevent="nativeDrop('ura')">
+          <span v-if="!ura.length" class="drop-placeholder">拖动牌面到此处加入</span>
+          <pai-select v-for="(pai,index) in ura" :key="`${pai}-${index}`"
+            :name="pai" @click="removeSingle(ura,pai)"></pai-select>
+        </div>
+      </section>
+
+      <section class="surface-panel lggc collection-panel collection-nuki">
+        <div class="collection-heading">
+          <div>
+            <span class="collection-title">拔北</span>
+            <span class="collection-count">{{ nuki.length }} / 4</span>
+          </div>
+          <span class="collection-help">点击移除</span>
+        </div>
+        <div class="box drop-zone" :class="dropZoneClass('nuki')" data-drop-target="nuki" data-testid="drop-nuki"
+          @dragover.prevent="nativeDragOver('nuki')" @drop.prevent="nativeDrop('nuki')">
+          <span v-if="!nuki.length" class="drop-placeholder">拖动北牌到此处加入</span>
+          <pai-select v-for="(pai,index) in nuki" :key="`${pai}-${index}`"
+            :name="pai" @click="removeSingle(nuki,pai)"></pai-select>
+        </div>
+      </section>
+    </section>
+
+    <section class="editor-grid">
+      <div class="surface-panel lggc control-panel">
+        <div class="control-heading">
+          <div>
+            <p class="section-kicker">配置</p>
+            <h2>和牌条件</h2>
+            <p class="control-caption">先补齐牌型，再计算点数</p>
+          </div>
+          <span class="control-status" :class="{ ready: calculateEnable }">
+            <span class="control-status-dot"></span>
+            {{ calculateEnable ? '可以计算' : '等待牌型' }}
+          </span>
+        </div>
+
+        <div class="action-row">
+          <n-button class="pressable action-button clear-button" @click="clearAll()" type="error" ghost size="large">清空</n-button>
+          <n-button class="pressable action-button calculate-button" @click="myCalculate()" type="primary" ghost size="large"
+            :disabled="!calculateEnable">计算</n-button>
+        </div>
+
+        <div class="control-section field-section">
+          <div class="control-section-heading">
+            <div>
+              <span class="control-section-title">牌型参数</span>
+              <span class="control-section-note">基础条件</span>
+            </div>
+            <span class="section-index">01</span>
+          </div>
+
+          <div class="field-grid">
+            <label class="field-row">
+              <span>加入类型</span>
+              <n-select v-model:value="mode" :options="optionMode"/>
+            </label>
+            <label class="field-row">
+              <span>和了方式</span>
+              <n-select v-model:value="agariWay" :options="optionAgariWay"/>
+            </label>
+            <label class="field-row">
+              <span>场风</span>
+              <n-select v-model:value="field" :options="optionWind"/>
+            </label>
+            <label class="field-row">
+              <span>自风</span>
+              <n-select v-model:value="seat" :options="optionWind"/>
+            </label>
+            <label class="field-row">
+              <span>赤宝牌</span>
+              <n-input-number v-model:value="red" size="large" :min="0"/>
+            </label>
+            <label class="field-row">
+              <span>本场</span>
+              <n-input-number v-model:value="ponba" size="large" :min="0" />
+            </label>
+          </div>
+        </div>
+
+        <div class="control-section yaku-block">
+          <div class="control-section-heading">
+            <div>
+              <span class="control-section-title">役种</span>
+              <span class="control-section-note">可选加成</span>
+            </div>
+            <span class="section-index">02</span>
+          </div>
+          <n-checkbox-group v-model:value="yakus" class="yaku-list">
+            <n-checkbox v-for="item in yakuName" :key="item.value" size="large"
+              :value="item.value" :label="item.name" :disabled="isYakuDisable[item.value]"/>
+          </n-checkbox-group>
+        </div>
+      </div>
+
+      <section id="result" class="surface-panel lggc result-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="section-kicker">计算结果</p>
+            <h2>点数结算</h2>
+          </div>
+          <span class="result-state" :class="{ ready: isTrueAgari }">
+            {{ isTrueAgari ? '已识别' : '等待完整牌型' }}
+          </span>
+        </div>
+
+        <div v-if="isTrueAgari" class="result-content">
+          <div class="number">
+            <div v-if="result.pointType==2">{{result.point1}} / {{result.point2}}</div>
+            <div v-else-if="result.pointType==0">{{result.point1}} ALL</div>
+            <div v-else>{{result.point1}}</div>
+          </div>
+          <div class="result-summary">
+            <span v-if="!result.isYakuman">{{result.han}}翻 <span v-if="needFu">{{result.fu}}符</span> {{manName}}</span>
+            <span v-else>{{result.han}}倍役满</span>
+          </div>
+          <div class="result-columns">
+            <div>
+              <span class="result-label">成立役种</span>
+              <ul>
+                <li v-for="(name,index) in result.yaku" :key="index">{{name}}</li>
+              </ul>
+            </div>
+            <div v-if="needFu">
+              <span class="result-label">符计算内容</span>
+              <ul>
+                <li v-for="(name,index) in result.fuMessages" :key="index">{{name}}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div v-else class="empty-result">
+          <span class="empty-result-icon">＋</span>
+          <strong>无役 / 无和牌型</strong>
+          <span>补齐 14 张手牌后计算结果会显示在这里。</span>
+        </div>
+      </section>
+    </section>
+
+    <div v-if="draggingPai" class="drag-layer" aria-hidden="true">
+      <div class="drag-ghost" :style="{ transform: dragGhostTransform }">
+        <img :src="tileSrc(draggingPai)" alt="" draggable="false" />
+      </div>
+    </div>
+  </main>
 </template>
 
 <script>
 import PaiSelect from '../components/PaiSelect.vue'
 import BlockSelect from '../components/BlockSelect.vue'
-import { NButton, NSelect, NDivider, NCheckboxGroup, NCheckbox, NGrid, NGridItem, NInputNumber} from 'naive-ui'
+import { NButton, NSelect, NCheckboxGroup, NCheckbox, NInputNumber} from 'naive-ui'
 import { next, getType, getNumber } from '@/store/util'
 import { Calculator } from '@/store/calc'
 import { Result} from '@/store/definition'
@@ -132,9 +253,8 @@ export default {
     BlockSelect,
     NButton,
     NSelect,
-    NDivider,
     NCheckboxGroup,
-    NCheckbox, NGrid, NGridItem, NInputNumber
+    NCheckbox, NInputNumber
   },
   props:{
     rule:Object
@@ -191,6 +311,10 @@ export default {
       red:0,
       ponba:0,
       result:new Result(),
+      draggingPai:null,
+      dragPoint:{x:0,y:0},
+      dragOffset:{x:0,y:0},
+      dropTarget:null,
     }
   },
   methods:{
@@ -210,22 +334,129 @@ export default {
       this.furo.push({type:this.mode,name:na});
     },
     removeSingle(obj, name){
-      obj.splice(obj.findIndex((x)=>{return x==name}),1)
+      const index = obj.findIndex((x)=>{return x==name})
+      if(index >= 0) obj.splice(index,1)
     },
-    removeMulti(name){
-      // TODO 在hand为11p234s1p时，点击最后一个1p会删除第一个1p
-      this.furo.splice(this.hand.findIndex((x)=>{return x==name}),1)
+    removeMulti(index){
+      if(index >= 0) this.furo.splice(index,1)
     },
     clearAll(){
       this.hand=[],
       this.furo=[],
+      this.dora=[],
       this.ura=[],
       this.nuki=[],
       this.yakus=[],
       this.mode='pai',
       this.agariWay='tsumo',
       this.field='east',
-      this.seat='east'
+      this.seat='east',
+      this.red=0,
+      this.ponba=0,
+      this.result=new Result()
+    },
+    tileSrc(name){
+      return require("../assets/"+name+".webp")
+    },
+    dropZoneClass(target){
+      return {
+        'is-drop-zone': Boolean(this.draggingPai),
+        'is-drag-over': this.dropTarget === target,
+      }
+    },
+    updateDropTarget(point){
+      if(!this.draggingPai || typeof document === 'undefined') return
+
+      const element = document.elementFromPoint(point.x, point.y)
+      const target = element && element.closest
+        ? element.closest('[data-drop-target]')
+        : null
+      this.dropTarget = target ? target.dataset.dropTarget : null
+    },
+    nativeDragOver(target){
+      if(this.draggingPai) this.dropTarget = target
+    },
+    nativeDrop(target){
+      if(this.draggingPai && this.canDropTo(target,this.draggingPai)) {
+        this.addToDropTarget(target,this.draggingPai)
+      }
+      this.cancelTileDrag()
+    },
+    beginTileDrag(payload){
+      if(!payload || !payload.name) return
+      this.draggingPai = payload.name
+      this.dragPoint = payload.point
+      this.dragOffset = payload.offset
+      this.dropTarget = null
+      this.updateDropTarget(payload.point)
+    },
+    moveTileDrag(payload){
+      if(!this.draggingPai || !payload) return
+      this.dragPoint = payload.point
+      this.updateDropTarget(payload.point)
+    },
+    endTileDrag(payload){
+      if(!this.draggingPai) return
+      if(payload) {
+        this.dragPoint = payload.point
+        this.updateDropTarget(payload.point)
+      }
+
+      const target = this.dropTarget
+      const name = this.draggingPai
+      if(target && this.canDropTo(target,name)) {
+        this.addToDropTarget(target,name)
+      }
+      this.cancelTileDrag()
+    },
+    cancelTileDrag(){
+      this.draggingPai = null
+      this.dropTarget = null
+      this.dragPoint = {x:0,y:0}
+      this.dragOffset = {x:0,y:0}
+    },
+    tileKey(name){
+      if(name && name[0] === '0') return '5'+name[1]
+      return name
+    },
+    tileCount(name){
+      const key = this.tileKey(name)
+      let count = 0
+      const countList = (list) => {
+        for(const item of list) {
+          if(this.tileKey(item) === key) count++
+        }
+      }
+      countList(this.hand)
+      countList(this.dora)
+      countList(this.ura)
+      countList(this.nuki)
+
+      for(const block of this.furo) {
+        if(block.type === 'chi') {
+          if(this.tileKey(block.name) === key) count++
+          if(this.tileKey(next(block.name)) === key) count++
+          if(this.tileKey(next(next(block.name))) === key) count++
+        }
+        else if(this.tileKey(block.name) === key) {
+          count += block.type === 'pon' ? 3 : 4
+        }
+      }
+      return count
+    },
+    canDropTo(target,name){
+      if(this.tileCount(name) >= 4) return false
+      if(target === 'hand') return this.hand.length + this.furo.length * 3 < 14
+      if(target === 'dora') return this.dora.length < 5
+      if(target === 'ura') return this.ura.length < 5
+      if(target === 'nuki') return name === '4z' && this.nuki.length < 4
+      return false
+    },
+    addToDropTarget(target,name){
+      if(target === 'hand') this.hand.push(name)
+      else if(target === 'dora') this.dora.push(name)
+      else if(target === 'ura') this.ura.push(name)
+      else if(target === 'nuki') this.nuki.push(name)
     },
     myCalculate(){
       function cvtWind(x){
@@ -301,6 +532,20 @@ export default {
     }
   },
   computed:{
+    dropTargetLabel(){
+      const labels = {
+        hand:'加入手牌',
+        dora:'加入宝牌指示牌',
+        ura:'加入里宝牌指示牌',
+        nuki:'加入拔北',
+      }
+      return labels[this.dropTarget] || '选择目标区域'
+    },
+    dragGhostTransform(){
+      const x = this.dragPoint.x - this.dragOffset.x
+      const y = this.dragPoint.y - this.dragOffset.y
+      return `translate3d(${x}px, ${y}px, 0)`
+    },
     isDisable(){
       let paiLeft = {
         "1p": 4, "2p": 4, "3p": 4, "4p": 4, "5p": 4, "6p": 4, "7p": 4, "8p": 4, "9p": 4,
@@ -538,7 +783,6 @@ export default {
         if(name.startsWith("赤宝牌"))continue;
         if(name.startsWith("红宝牌"))continue;
         if(name.startsWith("拔北"))continue;
-        console.log(name)
         hasExceptDora = true;
       }
       return hasExceptDora
@@ -548,45 +792,768 @@ export default {
 </script>
 
 <style scoped>
-  .flex-row{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
+  .calculator-page {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-areas:
+      "palette controls results"
+      "collections collections collections";
+    grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 0.78fr) minmax(18rem, 0.9fr);
+    min-width: 0;
   }
-  .flex-col{
+
+  .surface-panel {
+    backdrop-filter: blur(1.25rem) saturate(145%);
+    -webkit-backdrop-filter: blur(1.25rem) saturate(145%);
+    background:
+      linear-gradient(135deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.42));
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    color: var(--text);
+    min-width: 0;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .palette-panel {
+    grid-area: palette;
+    padding: clamp(0.9rem, 1.7vw, 1.25rem);
+  }
+
+  .palette-panel::after {
+    background: radial-gradient(circle, rgba(174, 219, 255, 0.32), transparent 68%);
+    bottom: -10rem;
+    content: "";
+    height: 19rem;
+    pointer-events: none;
+    position: absolute;
+    right: -7rem;
+    width: 19rem;
+  }
+
+  .section-heading,
+  .panel-heading,
+  .collection-heading,
+  .subsection-heading {
+    align-items: flex-start;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .section-heading {
+    gap: 1rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .section-kicker {
+    color: var(--teal-strong);
+    font-size: 0.7rem;
+    font-weight: 750;
+    letter-spacing: 0.14em;
+    margin: 0 0 0.25rem;
+    text-transform: uppercase;
+  }
+
+  h1,
+  h2,
+  p {
+    margin-top: 0;
+  }
+
+  h1,
+  h2 {
+    color: var(--text);
+    font-weight: 720;
+    letter-spacing: -0.035em;
+  }
+
+  h1 {
+    font-size: clamp(1.3rem, 2vw, 1.8rem);
+    line-height: 1.1;
+    margin-bottom: 0.38rem;
+  }
+
+  h2 {
+    font-size: 1.1rem;
+    line-height: 1.2;
+    margin-bottom: 0;
+  }
+
+  .section-description {
+    color: var(--muted);
+    font-size: 0.78rem;
+    margin-bottom: 0;
+  }
+
+  .gesture-note {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid rgba(255, 255, 255, 0.78);
+    border-radius: 999px;
+    color: var(--muted);
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.76rem;
+    gap: 0.45rem;
+    margin-top: 0.2rem;
+    padding: 0.46rem 0.72rem;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      color 180ms ease;
+  }
+
+  .gesture-note.active {
+    background: rgba(209, 244, 255, 0.78);
+    border-color: rgba(25, 142, 176, 0.36);
+    color: var(--teal-strong);
+  }
+
+  .gesture-dot {
+    background: var(--teal);
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.22rem rgba(25, 142, 176, 0.1);
+    height: 0.4rem;
+    width: 0.4rem;
+  }
+
+  .gesture-note.active .gesture-dot {
+    background: var(--teal);
+    box-shadow: 0 0 0 0.22rem rgba(25, 142, 176, 0.18);
+  }
+
+  .tile-palette {
     display: flex;
     flex-direction: column;
-    flex-wrap: wrap;
+    gap: 0.32rem;
+    margin: 0.7rem -0.25rem -0.2rem;
+    overflow-x: auto;
+    padding: 0.5rem 0.25rem 0.3rem;
+    position: relative;
+    scrollbar-color: rgba(157, 176, 200, 0.35) transparent;
+    scrollbar-width: thin;
+    z-index: 1;
   }
-  .flex{
-    flex:auto
+
+  .tile-row {
+    display: flex;
+    gap: 0.1rem;
+    justify-content: center;
+    min-width: max-content;
   }
-  .flex-row:not(.nospace)>div,.flex-col:not(.nospace)>*{
-    margin: 0.1rem;
+
+  :deep(.tile-palette .tile-button) {
+    --tile-height: 3.85rem;
   }
-  .class1{
-    width: 16rem;
+
+  .editor-grid {
+    display: contents;
   }
-  .line{
-    margin: 0.5rem 0;
+
+  .control-panel,
+  .result-panel {
+    align-self: stretch;
+    min-width: 0;
+    padding: clamp(0.9rem, 1.4vw, 1.15rem);
   }
-  .nowrap{
-    flex-wrap: nowrap;
+
+  .control-panel {
+    display: flex;
+    flex-direction: column;
+    grid-area: controls;
   }
-  .number{
-    font-size:3.125rem;
+
+  .result-panel {
+    grid-area: results;
   }
-  #result{
-    padding: 0.3125rem;
-    flex:auto;
-    border: 0.2rem solid black;
-  }
-  .box{
+
+  .control-heading {
     align-items: flex-start;
-    border: 0.125rem dashed grey;
-    padding: 0.2rem;
-    min-height:6.25rem;
+    display: flex;
+    gap: 0.8rem;
+    justify-content: space-between;
+  }
+
+  .control-caption {
+    color: var(--muted);
+    font-size: 0.72rem;
+    margin: 0.26rem 0 0;
+  }
+
+  .control-status {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(82, 121, 153, 0.14);
+    border-radius: 999px;
+    color: var(--muted);
+    display: inline-flex;
+    flex: 0 0 auto;
+    font-size: 0.67rem;
+    gap: 0.38rem;
+    margin-top: 0.2rem;
+    padding: 0.4rem 0.58rem;
+    transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease;
+  }
+
+  .control-status-dot {
+    background: currentColor;
+    border-radius: 50%;
+    box-shadow: 0 0 0 0.2rem rgba(100, 117, 139, 0.1);
+    height: 0.38rem;
+    width: 0.38rem;
+  }
+
+  .control-status.ready {
+    background: rgba(220, 247, 232, 0.76);
+    border-color: rgba(49, 141, 104, 0.24);
+    color: var(--success);
+  }
+
+  .control-status.ready .control-status-dot {
+    box-shadow: 0 0 0 0.2rem rgba(49, 141, 104, 0.12);
+  }
+
+  .panel-heading {
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .panel-mark {
+    color: rgba(100, 117, 139, 0.62);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.1em;
+  }
+
+  .action-row {
+    display: grid;
+    gap: 0.5rem;
+    grid-template-columns: 1fr 1fr;
+    margin-top: 0.85rem;
+  }
+
+  :deep(.action-button) {
+    border-radius: 0.72rem;
+    font-size: 0.84rem;
+    font-weight: 700;
+    min-height: 2.45rem;
+  }
+
+  :deep(.calculate-button.n-button) {
+    background: linear-gradient(135deg, #36a9d2, #2589c5);
+    border-color: rgba(255, 255, 255, 0.7);
+    box-shadow: 0 0.6rem 1.2rem rgba(41, 135, 187, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    color: #ffffff;
+  }
+
+  :deep(.calculate-button.n-button:hover) {
+    background: linear-gradient(135deg, #4eb9df, #3198d2);
+    box-shadow: 0 0.8rem 1.5rem rgba(41, 135, 187, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+
+  :deep(.clear-button.n-button) {
+    background: rgba(255, 255, 255, 0.46);
+    border-color: rgba(198, 93, 112, 0.36);
+    color: var(--danger);
+  }
+
+  :deep(.clear-button.n-button:hover) {
+    background: rgba(255, 231, 235, 0.8);
+  }
+
+  :deep(.action-button.n-button:active) {
+    transform: scale(0.97) translateY(0.03rem);
+  }
+
+  :deep(.action-button.n-button:focus-visible) {
+    outline: 0.15rem solid rgba(25, 142, 176, 0.42);
+    outline-offset: 0.14rem;
+  }
+
+  :deep(.n-button--disabled) {
+    filter: saturate(0.45);
+    opacity: 0.42;
+  }
+
+  .line {
+    border-color: rgba(82, 121, 153, 0.13);
+    margin: 0.85rem 0;
+  }
+
+  .control-section {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(237, 247, 252, 0.22));
+    border: 1px solid rgba(82, 121, 153, 0.13);
+    border-radius: 0.92rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+    padding: 0.68rem 0.7rem 0.72rem;
+  }
+
+  .field-section {
+    margin-top: 0.82rem;
+  }
+
+  .control-section + .control-section {
+    margin-top: 0.68rem;
+  }
+
+  .control-section-heading {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.58rem;
+  }
+
+  .control-section-heading > div {
+    align-items: baseline;
+    display: flex;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .control-section-title {
+    color: var(--text);
+    font-size: 0.76rem;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+  }
+
+  .control-section-note {
+    color: var(--muted);
+    font-size: 0.65rem;
+  }
+
+  .section-index {
+    align-items: center;
+    background: rgba(255, 255, 255, 0.42);
+    border: 1px solid rgba(82, 121, 153, 0.12);
+    border-radius: 0.45rem;
+    color: rgba(100, 117, 139, 0.72);
+    display: inline-flex;
+    font-size: 0.62rem;
+    font-variant-numeric: tabular-nums;
+    height: 1.32rem;
+    justify-content: center;
+    letter-spacing: 0.08em;
+    width: 1.72rem;
+  }
+
+  .field-grid {
+    display: grid;
+    gap: 0.62rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .field-row {
+    align-items: stretch;
+    color: var(--muted);
+    display: flex;
+    flex-direction: column;
+    font-size: 0.7rem;
+    font-weight: 650;
+    gap: 0.28rem;
+  }
+
+  :deep(.field-row .n-base-selection),
+  :deep(.field-row .n-input-number),
+  :deep(.field-row .n-input) {
+    min-height: 2.3rem;
+  }
+
+  :deep(.field-row .n-base-selection .n-base-selection-label),
+  :deep(.field-row .n-input-number .n-input) {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(82, 121, 153, 0.16);
+    border-radius: 0.62rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+  }
+
+  :deep(.field-row .n-base-selection:hover .n-base-selection-label),
+  :deep(.field-row .n-input-number:hover .n-input) {
+    background: rgba(255, 255, 255, 0.82);
+    border-color: rgba(25, 142, 176, 0.42);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.14rem rgba(25, 142, 176, 0.08);
+  }
+
+  :deep(.field-row .n-base-selection:focus-within .n-base-selection-label),
+  :deep(.field-row .n-input-number:focus-within .n-input) {
+    border-color: rgba(25, 142, 176, 0.52);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.16rem rgba(25, 142, 176, 0.11);
+  }
+
+  :deep(.field-row .n-base-selection__state-border) {
+    border-color: rgba(25, 142, 176, 0.52) !important;
+    box-shadow: 0 0 0 0.16rem rgba(25, 142, 176, 0.11);
+  }
+
+  :deep(.field-row .n-base-selection-label) {
+    color: var(--text);
+  }
+
+  :deep(.field-row .n-input__input-el) {
+    color: var(--text);
+  }
+
+  .yaku-block {
+    min-height: 0;
+  }
+
+  .muted-label,
+  .collection-help {
+    color: var(--muted);
+    font-size: 0.7rem;
+    font-weight: 500;
+  }
+
+  .yaku-list {
+    display: grid;
+    gap: 0.05rem 0.35rem;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  :deep(.yaku-list .n-checkbox) {
+    border-radius: 0.52rem;
+    min-height: 1.78rem;
+    padding: 0.16rem 0.28rem;
+    transition: background-color 150ms ease, color 150ms ease, transform 120ms ease;
+  }
+
+  :deep(.yaku-list .n-checkbox:hover) {
+    background: rgba(213, 242, 255, 0.48);
+  }
+
+  :deep(.yaku-list .n-checkbox:active) {
+    transform: scale(0.97);
+  }
+
+  :deep(.yaku-list .n-checkbox-box) {
+    background: rgba(255, 255, 255, 0.56);
+    border-color: rgba(82, 121, 153, 0.25);
+    border-radius: 0.34rem;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
+    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 120ms ease;
+  }
+
+  :deep(.yaku-list .n-checkbox--checked .n-checkbox-box) {
+    background: linear-gradient(135deg, #39afd5, #258bc2);
+    border-color: rgba(255, 255, 255, 0.74);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0.25rem 0.65rem rgba(41, 135, 187, 0.16);
+  }
+
+  :deep(.yaku-list .n-checkbox--checked .n-checkbox__label) {
+    color: var(--teal-strong);
+    font-weight: 680;
+  }
+
+  :deep(.yaku-list .n-checkbox__label) {
+    color: var(--muted);
+    font-size: 0.66rem;
+    font-weight: 600;
+    line-height: 1.25;
+    white-space: nowrap;
+  }
+
+  :deep(.yaku-list .n-checkbox--disabled) {
+    opacity: 0.42;
+  }
+
+  .result-panel {
+    background:
+      radial-gradient(circle at 82% 10%, rgba(221, 214, 255, 0.52), transparent 13rem),
+      linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(247, 250, 255, 0.52));
+    display: flex;
+    flex-direction: column;
+    min-height: 100%;
+  }
+
+  .result-state {
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid rgba(82, 121, 153, 0.14);
+    border-radius: 999px;
+    color: var(--muted);
+    font-size: 0.72rem;
+    padding: 0.35rem 0.62rem;
+  }
+
+  .result-state.ready {
+    background: rgba(216, 246, 231, 0.76);
+    border-color: rgba(49, 141, 104, 0.3);
+    color: var(--success);
+  }
+
+  .result-content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 0.2rem 0.2rem;
+  }
+
+  .number {
+    color: var(--text);
+    font-size: clamp(2rem, 4.5vw, 3.6rem);
+    font-variant-numeric: tabular-nums;
+    font-weight: 750;
+    letter-spacing: -0.07em;
+    line-height: 1;
+  }
+
+  .result-summary {
+    color: var(--teal-strong);
+    font-size: 1rem;
+    font-weight: 650;
+    margin-top: 0.7rem;
+  }
+
+  .result-columns {
+    border-top: 1px solid rgba(82, 121, 153, 0.14);
+    display: grid;
+    gap: 1.3rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 1.45rem;
+    padding-top: 1rem;
+  }
+
+  .result-label {
+    color: var(--muted);
+    display: block;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.35rem;
+  }
+
+  .result-columns ul {
+    color: var(--text);
+    font-size: 0.76rem;
+    line-height: 1.65;
+    margin: 0;
+    padding-left: 1rem;
+  }
+
+  .empty-result {
+    align-items: center;
+    color: var(--muted);
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: 0.45rem;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .empty-result strong {
+    color: var(--text);
+    font-size: 1.05rem;
+  }
+
+  .empty-result span:last-child {
+    font-size: 0.8rem;
+  }
+
+  .empty-result-icon {
+    align-items: center;
+    border: 1px dashed rgba(25, 142, 176, 0.36);
+    border-radius: 0.75rem;
+    color: var(--teal-strong);
+    display: inline-flex;
+    font-size: 1.45rem;
+    height: 3rem;
+    justify-content: center;
+    width: 3rem;
+  }
+
+  .collections-grid {
+    grid-area: collections;
+    display: grid;
+    gap: 0.8rem;
+    grid-template-columns: minmax(0, 2.15fr) minmax(0, 1fr) minmax(0, 1.08fr) minmax(0, 1.08fr) minmax(0, 0.9fr);
+  }
+
+  .collection-panel {
+    min-width: 0;
+    padding: 0.78rem;
+  }
+
+  .collection-heading {
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.58rem;
+  }
+
+  .collection-heading > div {
+    align-items: baseline;
+    display: flex;
+    gap: 0.45rem;
+    min-width: 0;
+  }
+
+  .collection-title {
+    color: var(--text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  .collection-count {
+    color: var(--teal-strong);
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .box {
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.32);
+    border: 1px dashed rgba(82, 121, 153, 0.24);
+    border-radius: 0.72rem;
     display: flex;
     flex-wrap: wrap;
+    gap: 0.08rem;
+    min-height: 4.1rem;
+    overflow-x: auto;
+    padding: 0.42rem;
+    position: relative;
+    scrollbar-width: thin;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :deep(.box .tile-button) {
+    --tile-height: 3.45rem;
+  }
+
+  .box.is-drop-zone {
+    background: rgba(217, 247, 255, 0.26);
+    border-color: rgba(25, 142, 176, 0.28);
+  }
+
+  .box.is-drag-over {
+    background: rgba(198, 241, 255, 0.68);
+    border-color: var(--teal);
+    box-shadow: 0 0 0 0.18rem rgba(25, 142, 176, 0.12), 0 1rem 2rem rgba(14, 114, 126, 0.12);
+    transform: translateY(-0.12rem);
+  }
+
+  .drop-placeholder {
+    align-items: center;
+    color: rgba(100, 117, 139, 0.78);
+    display: flex;
+    flex: 1 1 100%;
+    font-size: 0.76rem;
+    justify-content: center;
+    min-height: 3.1rem;
+    text-align: center;
+  }
+
+  .drag-layer {
+    inset: 0;
+    pointer-events: none;
+    position: fixed;
+    z-index: 20;
+  }
+
+  .drag-ghost {
+    left: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    transform-origin: top left;
+    will-change: transform;
+  }
+
+  .drag-ghost img {
+    border-radius: 0.7rem;
+    box-shadow: 0 1.2rem 2.8rem rgba(44, 83, 113, 0.22), 0 0 0 0.15rem rgba(25, 142, 176, 0.35);
+    display: block;
+    height: 6rem;
+    opacity: 0.96;
+    transform: rotate(2deg) scale(1.03);
+    width: auto;
+  }
+
+  @media screen and (max-width: 1100px) {
+    .calculator-page {
+      grid-template-areas:
+        "palette palette"
+        "controls results"
+        "collections collections";
+      grid-template-columns: minmax(0, 1fr) minmax(18rem, 0.95fr);
+    }
+
+    .collections-grid {
+      grid-template-columns: minmax(0, 2fr) repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 720px) {
+    .calculator-page {
+      grid-template-areas:
+        "palette"
+        "controls"
+        "results"
+        "collections";
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .section-heading {
+      flex-direction: column;
+    }
+
+    .gesture-note {
+      align-self: flex-start;
+    }
+
+    .result-panel {
+      min-height: 18rem;
+    }
+
+    .collections-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media screen and (max-width: 540px) {
+    .palette-panel,
+    .control-panel,
+    .result-panel,
+    .collection-panel {
+      border-radius: 1rem;
+    }
+
+    .field-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .yaku-list,
+    .result-columns,
+    .collections-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .result-columns {
+      gap: 0.8rem;
+    }
+
+    :deep(.box .tile-button) {
+      --tile-height: 3rem;
+    }
+
+    :deep(.tile-palette .tile-button) {
+      --tile-height: 3.2rem;
+    }
+
+    .drag-ghost img {
+      height: 3.35rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .box.is-drag-over {
+      transform: none;
+    }
   }
 </style>
