@@ -1057,6 +1057,8 @@ export default {
   }
 
   :deep(.action-button) {
+    --n-ripple-color: transparent !important;
+    --n-wave-opacity: 0 !important;
     backdrop-filter: blur(0.8rem) saturate(155%);
     -webkit-backdrop-filter: blur(0.8rem) saturate(155%);
     border-style: double;
@@ -1081,22 +1083,28 @@ export default {
     box-shadow: none !important;
   }
 
+  :deep(.action-button .n-base-wave) {
+    display: none;
+  }
+
   :deep(.calculate-button.n-button) {
-    background: linear-gradient(135deg, rgba(58, 174, 215, 0.88), rgba(37, 139, 197, 0.82));
+    background: rgba(255, 255, 255, 0.44);
     border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
       inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
       0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
-    color: #ffffff;
+    color: var(--success);
   }
 
   :deep(.calculate-button.n-button:hover) {
-    background: linear-gradient(135deg, rgba(78, 185, 223, 0.94), rgba(49, 152, 210, 0.88));
+    background: rgba(255, 255, 255, 0.44);
+    border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
       inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
       0 0.55rem 1rem rgba(44, 83, 113, 0.09);
+    color: var(--success);
   }
 
   :deep(.calculate-button.n-button.n-button--disabled) {
@@ -1115,12 +1123,33 @@ export default {
   }
 
   :deep(.clear-button.n-button:hover) {
-    background: rgba(255, 231, 235, 0.78);
-    border-color: rgba(255, 255, 255, 0.86);
+    background: rgba(255, 255, 255, 0.44);
+    border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
-      0 0.55rem 1rem rgba(44, 83, 113, 0.09);
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
+      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
+    color: var(--danger);
+  }
+
+  :deep(.action-button.n-button:active),
+  :deep(.action-button.n-button:focus) {
+    background: rgba(255, 255, 255, 0.44);
+    border-color: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
+      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
+  }
+
+  :deep(.calculate-button.n-button:active),
+  :deep(.calculate-button.n-button:focus) {
+    color: var(--success);
+  }
+
+  :deep(.clear-button.n-button:active),
+  :deep(.clear-button.n-button:focus) {
+    color: var(--danger);
   }
 
   :deep(.action-button.n-button:active) {
@@ -1128,7 +1157,7 @@ export default {
   }
 
   :deep(.action-button.n-button:focus-visible) {
-    outline: 0.15rem solid rgba(25, 142, 176, 0.42);
+    outline: 0.15rem solid transparent;
     outline-offset: 0.14rem;
   }
 
