@@ -161,7 +161,13 @@
             </label>
             <label class="field-row">
               <span>赤宝牌</span>
-              <n-input-number v-model:value="red" size="large" :min="0"/>
+              <n-input-number
+                v-model:value="redInputValue"
+                data-testid="red-count"
+                size="large"
+                :min="0"
+                :disabled="redSelectionActive"
+              />
             </label>
             <label class="field-row">
               <span>本场</span>
@@ -262,9 +268,9 @@ export default {
   data() {
     return {
       paiName: [
-        ['1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p'],
-        ['1s', '2s', '3s', '4s', '5s', '6s', '7s', '8s', '9s'],
-        ['1m', '2m', '3m', '4m', '5m', '6m', '7m', '8m', '9m'],
+        ['1p', '2p', '3p', '4p', '5p', '0p', '6p', '7p', '8p', '9p'],
+        ['1s', '2s', '3s', '4s', '5s', '0s', '6s', '7s', '8s', '9s'],
+        ['1m', '2m', '3m', '4m', '5m', '0m', '6m', '7m', '8m', '9m'],
         ['1z', '2z', '3z', '4z', '5z', '6z', '7z']
       ],
       optionMode:[
@@ -419,6 +425,25 @@ export default {
       if(name && name[0] === '0') return '5'+name[1]
       return name
     },
+    isRedTile(name){
+      return Boolean(name && name[0] === '0' && ['m','p','s'].includes(name[1]))
+    },
+    redTileCount(name){
+      let count = 0
+      const countList = (list) => {
+        for(const item of list) {
+          if(item === name) count++
+        }
+      }
+      countList(this.hand)
+      countList(this.dora)
+      countList(this.ura)
+      countList(this.nuki)
+      for(const block of this.furo) {
+        if(block.name === name) count++
+      }
+      return count
+    },
     tileCount(name){
       const key = this.tileKey(name)
       let count = 0
@@ -433,12 +458,13 @@ export default {
       countList(this.nuki)
 
       for(const block of this.furo) {
+        const blockName = this.tileKey(block.name)
         if(block.type === 'chi') {
-          if(this.tileKey(block.name) === key) count++
-          if(this.tileKey(next(block.name)) === key) count++
-          if(this.tileKey(next(next(block.name))) === key) count++
+          if(blockName === key) count++
+          if(next(blockName) === key) count++
+          if(next(next(blockName)) === key) count++
         }
-        else if(this.tileKey(block.name) === key) {
+        else if(blockName === key) {
           count += block.type === 'pon' ? 3 : 4
         }
       }
@@ -459,6 +485,9 @@ export default {
       else if(target === 'nuki') this.nuki.push(name)
     },
     myCalculate(){
+      function normalizePai(name){
+        return name && name[0] === '0' ? '5' + name[1] : name
+      }
       function cvtWind(x){
         if(x=='east')return PositionType.EAST;
         if(x=='west')return PositionType.WEST;
@@ -466,7 +495,8 @@ export default {
         if(x=='north')return PositionType.NORTH;
       }
       function cvtPai(s){
-        return new Pai(getType(s),getNumber(s))
+        const normalized = normalizePai(s)
+        return new Pai(getType(normalized),getNumber(normalized))
       }
       function cvtFuro(s){
         let open = true
@@ -476,7 +506,8 @@ export default {
         if(s.type=="chi")localType = BlockType.SEQ
         else if(s.type=="pon")localType = BlockType.TRI
         else localType = BlockType.QUAD
-        return new Block(localType,getType(s.name),getNumber(s.name),open)
+        const normalized = normalizePai(s.name)
+        return new Block(localType,getType(normalized),getNumber(normalized),open)
       }
       function cvtYaku(x){
         if(x=="riichi")return RIICHI
@@ -513,7 +544,7 @@ export default {
       for(const y of this.yakus)tYaku.push(cvtYaku(y));
 
       let s = new State(
-        tField,tSeat,tYaku,tAgariWay,tPai,tBlock,tDora,tUra,tAgariPai,this.red,tNuki
+        tField,tSeat,tYaku,tAgariWay,tPai,tBlock,tDora,tUra,tAgariPai,this.effectiveRedCount,tNuki
       )
 
       let c = new Calculator()
@@ -547,44 +578,44 @@ export default {
       return `translate3d(${x}px, ${y}px, 0)`
     },
     isDisable(){
-      let paiLeft = {
-        "1p": 4, "2p": 4, "3p": 4, "4p": 4, "5p": 4, "6p": 4, "7p": 4, "8p": 4, "9p": 4,
-        "1s": 4, "2s": 4, "3s": 4, "4s": 4, "5s": 4, "6s": 4, "7s": 4, "8s": 4, "9s": 4,
-        "1m": 4, "2m": 4, "3m": 4, "4m": 4, "5m": 4, "6m": 4, "7m": 4, "8m": 4, "9m": 4,
-        "1z": 4, "2z": 4, "3z": 4, "4z": 4, "5z": 4, "6z": 4, "7z": 4,
-      }
-      let rt = {
-        "1p": false, "2p": false, "3p": false, "4p": false, "5p": false, "6p": false, "7p": false, "8p": false, "9p": false,
-        "1s": false, "2s": false, "3s": false, "4s": false, "5s": false, "6s": false, "7s": false, "8s": false, "9s": false,
-        "1m": false, "2m": false, "3m": false, "4m": false, "5m": false, "6m": false, "7m": false, "8m": false, "9m": false,
-        "1z": false, "2z": false, "3z": false, "4z": false, "5z": false, "6z": false, "7z": false,
+      const paiLeft = {}
+      const rt = {}
+      for(const row of this.paiName){
+        for(const name of row){
+          rt[name] = false
+          const normalized = this.tileKey(name)
+          if(paiLeft[normalized] === undefined) paiLeft[normalized] = 4
+        }
       }
 
-      
-      for(const p of this.hand){
-        paiLeft[p]--;
+      const usePai = (name, count = 1) => {
+        const normalized = this.tileKey(name)
+        if(paiLeft[normalized] !== undefined) paiLeft[normalized] -= count
       }
-      for(const p of this.dora){
-        paiLeft[p]--;
-      }
-      for(const p of this.ura){
-        paiLeft[p]--;
-      }
-      for(const p of this.nuki){
-        paiLeft[p]--;
-      }
+
+      for(const p of this.hand) usePai(p)
+      for(const p of this.dora) usePai(p)
+      for(const p of this.ura) usePai(p)
+      for(const p of this.nuki) usePai(p)
       for(const x of this.furo){
+        const normalized = this.tileKey(x.name)
         if(x.type=='pon'){
-          paiLeft[x.name]-=3;
+          usePai(normalized, 3)
         }
         else if(x.type=='chi'){
-          paiLeft[x.name]--;
-          paiLeft[next(x.name)]--;
-          paiLeft[next(next(x.name))]--;
+          usePai(normalized)
+          usePai(next(normalized))
+          usePai(next(next(normalized)))
         }
         else{
-          paiLeft[x.name]-=4;
+          usePai(normalized, 4)
         }
+      }
+
+      const canSelect = (name) => {
+        const normalized = this.tileKey(name)
+        return paiLeft[normalized] > 0 &&
+          (!this.isRedTile(name) || this.redTileCount(name) === 0)
       }
 
       if(this.mode=="pai"){
@@ -595,11 +626,7 @@ export default {
           return rt
         }
         for(const name in rt){
-          if(paiLeft[name]==0){
-            rt[name]=true;
-          }else{
-            rt[name]=false
-          }
+          rt[name] = !canSelect(name)
         }
       }
       else if(this.mode == 'dora'){
@@ -610,11 +637,7 @@ export default {
           return rt
         }
         for(const name in rt){
-          if(paiLeft[name]==0){
-            rt[name]=true
-          }else{
-            rt[name]=false
-          }
+          rt[name] = !canSelect(name)
         }
       }
       else if(this.mode == 'ura'){
@@ -625,16 +648,12 @@ export default {
           return rt
         }
         for(const name in rt){
-          if(paiLeft[name]==0){
-            rt[name]=true
-          }else{
-            rt[name]=false
-          }
+          rt[name] = !canSelect(name)
         }
       }
       else if(this.mode == 'nuki'){
         for(const name in rt){
-          rt[name] = name != '4z' || this.nuki.length==4 || paiLeft[name]<1
+          rt[name] = name != '4z' || this.nuki.length==4 || paiLeft[this.tileKey(name)]<1
         }
       }
       else{
@@ -646,13 +665,15 @@ export default {
         }
         if(this.mode=="chi"){
           for(const name in rt){
-            if(getNumber(name)>7 || getType(name)=='z'){
+            const normalized = this.tileKey(name)
+            if(getNumber(normalized)>7 || getType(normalized)=='z'){
               rt[name]=true
             }
             else{
-              if(paiLeft[name]==0 ||
-                paiLeft[next(name)]==0 ||
-                paiLeft[next(next(name))]==0){
+              if(paiLeft[normalized]==0 ||
+                paiLeft[next(normalized)]==0 ||
+                paiLeft[next(next(normalized))]==0 ||
+                (this.isRedTile(name) && this.redTileCount(name)>0)){
                 rt[name]=true
               }else{
                 rt[name]=false
@@ -662,7 +683,8 @@ export default {
         }
         else if(this.mode=="pon"){
           for(const name in rt){
-            if(paiLeft[name]<3){
+            if(paiLeft[this.tileKey(name)]<3 ||
+              (this.isRedTile(name) && this.redTileCount(name)>0)){
               rt[name]=true
             }else{
               rt[name]=false
@@ -671,7 +693,8 @@ export default {
         }
         else{
           for(const name in rt){
-            if(paiLeft[name]<4){
+            if(paiLeft[this.tileKey(name)]<4 ||
+              (this.isRedTile(name) && this.redTileCount(name)>0)){
               rt[name]=true
             }else{
               rt[name]=false
@@ -772,6 +795,30 @@ export default {
     },
     calculateEnable(){
       return this.hand.length+this.furo.length*3==14
+    },
+    selectedRedCount(){
+      let count = 0
+      for(const name of this.hand){
+        if(this.isRedTile(name)) count++
+      }
+      for(const block of this.furo){
+        if(this.isRedTile(block.name)) count++
+      }
+      return count
+    },
+    redSelectionActive(){
+      return this.selectedRedCount > 0
+    },
+    redInputValue:{
+      get(){
+        return this.redSelectionActive ? this.selectedRedCount : this.red
+      },
+      set(value){
+        if(!this.redSelectionActive) this.red = value == null ? 0 : value
+      }
+    },
+    effectiveRedCount(){
+      return this.redSelectionActive ? this.selectedRedCount : this.red
     },
     isTrueAgari(){
       if(this.result.han==0)return 0;

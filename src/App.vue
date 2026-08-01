@@ -2,7 +2,6 @@
   <div id="root">
     <header class="app-header lggc">
       <nav class="nav-shell" aria-label="主导航">
-        <div class="brand-mark" aria-label="雀算">雀算</div>
         <segmented-control
           class="main-navigation"
           :model-value="activeSection"
@@ -326,9 +325,12 @@
   }
 
   #root {
+    --safe-area-top: env(safe-area-inset-top, 0px);
+    --safe-area-bottom: env(safe-area-inset-bottom, 0px);
     --nav-height: 4.5rem;
     isolation: isolate;
     min-height: 100vh;
+    min-height: 100dvh;
     position: relative;
   }
 
@@ -345,9 +347,10 @@
     box-shadow: 0 0.7rem 2rem rgba(60, 98, 126, 0.08);
     display: flex;
     gap: 1rem;
-    height: var(--nav-height);
+    height: auto;
     justify-content: space-between;
-    padding: 0.7rem clamp(1rem, 4vw, 3.2rem);
+    min-height: calc(var(--nav-height) + var(--safe-area-top));
+    padding: calc(0.7rem + var(--safe-area-top)) clamp(1rem, 4vw, 3.2rem) 0.7rem;
     position: fixed;
     top: 0;
     width: 100%;
@@ -503,7 +506,7 @@
   #content {
     margin: 0 auto;
     max-width: 124rem;
-    padding: calc(var(--nav-height) + 0.25rem) clamp(0.9rem, 2.4vw, 2.6rem) 0.4rem;
+    padding: calc(var(--nav-height) + var(--safe-area-top) + 0.25rem) clamp(0.9rem, 2.4vw, 2.6rem) 0.4rem;
   }
 
   .page-switch-forward-enter-active,
@@ -832,8 +835,8 @@
     }
 
     #content {
-      padding-top: var(--nav-height);
-      padding-inline: 0.75rem;
+      padding-top: calc(var(--nav-height) + var(--safe-area-top));
+      padding-inline: 0;
     }
 
     .custom-card .n-card__content {
