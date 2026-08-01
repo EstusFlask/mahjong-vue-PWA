@@ -1082,17 +1082,18 @@ export default {
   }
 
   :deep(.calculate-button.n-button) {
-    background: linear-gradient(135deg, rgba(58, 174, 215, 0.88), rgba(37, 139, 197, 0.82));
+    background: rgba(255, 255, 255, 0.44);
     border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
       inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
       0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
-    color: #ffffff;
+    color: var(--muted);
   }
 
   :deep(.calculate-button.n-button:hover) {
-    background: linear-gradient(135deg, rgba(78, 185, 223, 0.94), rgba(49, 152, 210, 0.88));
+    background: rgba(255, 255, 255, 0.44);
+    border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
       inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
@@ -1115,12 +1116,12 @@ export default {
   }
 
   :deep(.clear-button.n-button:hover) {
-    background: rgba(255, 231, 235, 0.78);
-    border-color: rgba(255, 255, 255, 0.86);
+    background: rgba(255, 255, 255, 0.44);
+    border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
-      0 0.55rem 1rem rgba(44, 83, 113, 0.09);
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
+      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
   }
 
   :deep(.action-button.n-button:active) {
@@ -1332,6 +1333,7 @@ export default {
   }
 
   :deep(.yaku-list .n-checkbox) {
+    align-items: center;
     background: rgba(255, 255, 255, 0.16);
     border: 1px solid transparent;
     border-radius: 0.52rem;
@@ -1643,20 +1645,292 @@ export default {
   }
 
   @media screen and (max-width: 540px) {
+    .calculator-page {
+      gap: 0.2rem;
+    }
+
     .palette-panel,
     .control-panel,
     .result-panel,
     .collection-panel {
-      border-radius: 1rem;
+      border-radius: 0;
+    }
+
+    .palette-panel {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      overflow: visible;
+      padding: 0;
+    }
+
+    .palette-panel::after {
+      display: none;
+    }
+
+    .section-heading {
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+
+    .tile-palette {
+      gap: 0;
+      margin: 0;
+      padding: 0.125rem 0 0;
+      scrollbar-width: none;
+    }
+
+    .tile-palette::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tile-row {
+      gap: 0;
+      justify-content: flex-start;
+    }
+
+    :deep(.tile-palette .tile-button) {
+      --tile-height: 3.5rem;
+      padding: 0;
+    }
+
+    .control-panel {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      column-gap: 0.25rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2.35fr) minmax(6.5rem, 1fr);
+      grid-template-rows: auto auto;
+      overflow: visible;
+      padding: 0.28rem 0.1rem 0;
+    }
+
+    .control-heading,
+    .panel-heading {
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+
+    .action-row {
+      grid-column: 1;
+      grid-row: 1;
+      gap: 0.15rem;
+      grid-template-columns: 1fr;
+      margin-top: 0;
+      padding-top: 0;
+    }
+
+    .action-row::before {
+      display: none;
+    }
+
+    :deep(.action-button) {
+      border-radius: 0.22rem;
+      font-size: 0.8rem;
+      min-height: 2.2rem;
+    }
+
+    .control-section {
+      background: transparent;
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+      overflow: visible;
+      padding: 0;
+    }
+
+    .control-section::before,
+    .control-section::after {
+      display: none;
+    }
+
+    .control-section-heading {
+      clip: rect(0 0 0 0);
+      clip-path: inset(50%);
+      height: 1px;
+      overflow: hidden;
+      position: absolute;
+      white-space: nowrap;
+      width: 1px;
+    }
+
+    .field-section {
+      grid-column: 1;
+      grid-row: 2;
+      margin-top: 0.18rem;
+    }
+
+    .control-section + .control-section {
+      margin-top: 0;
+    }
+
+    .field-grid {
+      gap: 0;
+      grid-template-columns: 1fr;
+    }
+
+    .field-row {
+      align-items: center;
+      display: grid;
+      font-size: 0.68rem;
+      gap: 0.3rem;
+      grid-template-columns: 3.45rem minmax(0, 1fr);
+      min-height: 2.5rem;
+    }
+
+    :deep(.field-row .n-base-selection),
+    :deep(.field-row .n-input-number),
+    :deep(.field-row .n-input),
+    :deep(.field-row .n-base-selection .n-base-selection-label),
+    :deep(.field-row .n-input-number .n-input) {
+      height: 2.35rem;
+      min-height: 2.35rem;
+    }
+
+    :deep(.field-row .n-base-selection .n-base-selection-label),
+    :deep(.field-row .n-input-number .n-input) {
+      border-radius: 0.2rem;
+      padding-inline: 0.5rem;
+    }
+
+    .yaku-block {
+      align-self: start;
+      grid-column: 2;
+      grid-row: 1 / span 2;
+      margin-top: 0;
+    }
+
+    .yaku-list {
+      gap: 0;
+      grid-template-columns: 1fr;
+    }
+
+    :deep(.yaku-list .n-checkbox) {
+      background: transparent;
+      border: 0;
+      border-radius: 0;
+      min-height: 1.7rem;
+      padding: 0;
+    }
+
+    :deep(.yaku-list .n-checkbox__label) {
+      font-size: 0.68rem;
+      line-height: 1.1;
+    }
+
+    .result-panel {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      min-height: 0;
+      overflow: visible;
+      padding: 0;
+    }
+
+    .empty-result {
+      align-items: center;
+      background: #ffffff;
+      border: 2px solid #1f1f1f;
+      color: #111111;
+      flex: 0 0 auto;
+      gap: 0;
+      justify-content: center;
+      min-height: 6rem;
+      padding: 0.25rem 0.35rem;
+      text-align: left;
+    }
+
+    .empty-result strong {
+      color: #111111;
+      font-size: clamp(2.1rem, 11vw, 2.65rem);
+      font-weight: 500;
+      letter-spacing: -0.08em;
+      line-height: 1.1;
+      white-space: nowrap;
+      width: 100%;
+    }
+
+    .empty-result-icon,
+    .empty-result span:last-child {
+      display: none;
+    }
+
+    .collections-grid {
+      column-gap: 0.3rem;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      row-gap: 0.45rem;
+    }
+
+    .collection-panel {
+      background: transparent;
+      border: 0;
+      box-shadow: none;
+      overflow: visible;
+      padding: 0;
+    }
+
+    .collection-heading {
+      gap: 0;
+      margin-bottom: 0.12rem;
+    }
+
+    .collection-heading > div {
+      display: block;
+    }
+
+    .collection-title {
+      font-size: 0.72rem;
+    }
+
+    .collection-count,
+    .collection-help {
+      display: none;
+    }
+
+    .collection-nuki {
+      grid-column: 2;
+      grid-row: 2;
+    }
+
+    .collection-panel:nth-child(4) {
+      grid-column: 1;
+      grid-row: 3;
+    }
+
+    .box {
+      background: transparent;
+      border-radius: 0.16rem;
+      min-height: 4.8rem;
+      padding: 0.12rem;
+    }
+
+    .drop-placeholder {
+      font-size: 0;
+      min-height: 4.45rem;
+    }
+
+    :deep(.box .tile-button) {
+      --tile-height: 2.7rem;
     }
 
     .field-grid {
       grid-template-columns: 1fr;
     }
 
-    .yaku-list,
-    .result-columns,
-    .collections-grid {
+    .result-columns {
       grid-template-columns: 1fr;
     }
 
@@ -1669,7 +1943,7 @@ export default {
     }
 
     :deep(.tile-palette .tile-button) {
-      --tile-height: 3.2rem;
+      --tile-height: 3.5rem;
     }
 
     .drag-ghost img {
