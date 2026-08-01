@@ -1,5 +1,10 @@
 <template>
-  <div id="root">
+  <div
+    id="root"
+    @pointerdown.capture="handlePressStart"
+    @pointerup.capture="handlePressEnd"
+    @pointercancel.capture="handlePressEnd"
+  >
     <header class="app-header lggc">
       <nav class="nav-shell" aria-label="主导航">
         <segmented-control
@@ -187,6 +192,8 @@
           {value:'calculator',label:'计算器'},
           {value:'practice',label:'点数练习'},
         ],
+        pressedElement: null,
+        pressedPointerId: null,
       }
     },
     components: {
@@ -214,6 +221,43 @@
       }
     },
     methods:{
+      handlePressStart(event){
+        const target = event.target
+        const pressable = target && typeof target.closest === 'function'
+          ? target.closest('.pressable')
+          : null
+
+        if(!pressable || pressable.disabled || pressable.getAttribute('aria-disabled') === 'true'){
+          return
+        }
+
+        this.clearPressedState()
+        this.pressedElement = pressable
+        this.pressedPointerId = event.pointerId
+        pressable.classList.add('is-pressing')
+        if(event.pointerId !== undefined && typeof pressable.setPointerCapture === 'function'){
+          try{
+            pressable.setPointerCapture(event.pointerId)
+          }
+          catch{
+            // Synthetic events and older browsers may not support pointer capture.
+          }
+        }
+      },
+      handlePressEnd(event){
+        if(this.pressedElement === null || this.pressedPointerId !== event.pointerId){
+          return
+        }
+
+        this.clearPressedState()
+      },
+      clearPressedState(){
+        if(this.pressedElement !== null){
+          this.pressedElement.classList.remove('is-pressing')
+        }
+        this.pressedElement = null
+        this.pressedPointerId = null
+      },
       navigateTo(section){
         if(section !== this.activeSection){
           this.$router.push({name:section})
@@ -425,9 +469,11 @@
       color 180ms ease,
       box-shadow 180ms ease,
       transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+    touch-action: manipulation;
   }
 
-  .pressable:active {
+  .pressable:active,
+  .pressable.is-pressing {
     transform: scale(0.95) translateY(0.05rem);
   }
 

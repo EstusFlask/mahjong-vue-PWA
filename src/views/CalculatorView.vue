@@ -1199,7 +1199,8 @@ export default {
     color: var(--danger);
   }
 
-  :deep(.action-button.n-button:active) {
+  :deep(.action-button.n-button:active),
+  :deep(.action-button.n-button.is-pressing) {
     transform: scale(0.97) translateY(0.03rem);
   }
 
