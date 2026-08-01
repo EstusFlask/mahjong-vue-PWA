@@ -62,6 +62,7 @@ export default {
       targetWidth: 0,
       springVelocityX: 0,
       animationFrame: null,
+      resizeFrame: null,
       resizeObserver: null,
     };
   },
@@ -102,6 +103,10 @@ export default {
   },
   beforeUnmount() {
     this.stopAnimation();
+    if (this.resizeFrame !== null) {
+      cancelAnimationFrame(this.resizeFrame);
+      this.resizeFrame = null;
+    }
     window.removeEventListener('resize', this.handleResize);
     if (this.resizeObserver) {
       this.resizeObserver.disconnect();
@@ -151,12 +156,20 @@ export default {
     observeSize() {
       window.addEventListener('resize', this.handleResize, { passive: true });
       if (typeof ResizeObserver !== 'undefined') {
-        this.resizeObserver = new ResizeObserver(() => this.syncIndicator(false));
+        this.resizeObserver = new ResizeObserver(() => this.scheduleIndicatorSync());
         this.resizeObserver.observe(this.$refs.track);
       }
     },
     handleResize() {
-      this.$nextTick(() => this.syncIndicator(false));
+      this.scheduleIndicatorSync();
+    },
+    scheduleIndicatorSync() {
+      if (this.resizeFrame !== null) return;
+
+      this.resizeFrame = requestAnimationFrame(() => {
+        this.resizeFrame = null;
+        this.$nextTick(() => this.syncIndicator(false));
+      });
     },
     measureSelectedOption() {
       const track = this.$refs.track;
@@ -180,6 +193,10 @@ export default {
     syncIndicator(immediate) {
       const measurement = this.measureSelectedOption();
       if (!measurement) return;
+
+      const targetChanged = Math.abs(this.targetX - measurement.x) > 0.05
+        || Math.abs(this.targetWidth - measurement.width) > 0.05;
+      if (!immediate && this.indicatorReady && !targetChanged) return;
 
       this.targetX = measurement.x;
       this.targetWidth = measurement.width;

@@ -145,19 +145,19 @@
           <div class="field-grid">
             <label class="field-row">
               <span>加入类型</span>
-              <n-select v-model:value="mode" :options="optionMode"/>
+              <n-select v-model:value="mode" :options="optionMode" :consistent-menu-width="false"/>
             </label>
             <label class="field-row">
               <span>和了方式</span>
-              <n-select v-model:value="agariWay" :options="optionAgariWay"/>
+              <n-select v-model:value="agariWay" :options="optionAgariWay" :consistent-menu-width="false"/>
             </label>
             <label class="field-row">
               <span>场风</span>
-              <n-select v-model:value="field" :options="optionWind"/>
+              <n-select v-model:value="field" :options="optionWind" :consistent-menu-width="false"/>
             </label>
             <label class="field-row">
               <span>自风</span>
-              <n-select v-model:value="seat" :options="optionWind"/>
+              <n-select v-model:value="seat" :options="optionWind" :consistent-menu-width="false"/>
             </label>
             <label class="field-row">
               <span>赤宝牌</span>
@@ -223,7 +223,7 @@
         </div>
         <div v-else class="empty-result">
           <span class="empty-result-icon">＋</span>
-          <strong>无役/无和牌型</strong>
+          <strong>无役 / 无和牌型</strong>
           <span>补齐 14 张手牌后计算结果会显示在这里。</span>
         </div>
       </section>
@@ -1065,8 +1065,6 @@ export default {
     font-weight: 700;
     min-height: 2.45rem;
     overflow: hidden;
-    --n-color-pressed: rgba(255, 255, 255, 0.44) !important;
-    --n-ripple-color: transparent !important;
     transition:
       background-color 180ms ease,
       border-color 180ms ease,
@@ -1084,19 +1082,17 @@ export default {
   }
 
   :deep(.calculate-button.n-button) {
-    background: rgba(255, 255, 255, 0.44);
+    background: linear-gradient(135deg, rgba(58, 174, 215, 0.88), rgba(37, 139, 197, 0.82));
     border-color: rgba(255, 255, 255, 0.72);
     box-shadow:
       inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
       0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
-    color: var(--muted);
-    --n-text-color-pressed: var(--muted) !important;
+    color: #ffffff;
   }
 
   :deep(.calculate-button.n-button:hover) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
+    background: linear-gradient(135deg, rgba(78, 185, 223, 0.94), rgba(49, 152, 210, 0.88));
     box-shadow:
       inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
@@ -1116,16 +1112,15 @@ export default {
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
       0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
     color: var(--danger);
-    --n-text-color-pressed: var(--danger) !important;
   }
 
   :deep(.clear-button.n-button:hover) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
+    background: rgba(255, 231, 235, 0.78);
+    border-color: rgba(255, 255, 255, 0.86);
     box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
-      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
+      0 0.55rem 1rem rgba(44, 83, 113, 0.09);
   }
 
   :deep(.action-button.n-button:active) {
@@ -1133,8 +1128,8 @@ export default {
   }
 
   :deep(.action-button.n-button:focus-visible) {
-    outline: none;
-    outline-offset: 0;
+    outline: 0.15rem solid rgba(25, 142, 176, 0.42);
+    outline-offset: 0.14rem;
   }
 
   :deep(.n-button--disabled) {
@@ -1986,6 +1981,195 @@ export default {
 
     .empty-result strong {
       font-size: 2.75rem;
+    }
+  }
+
+  /* Keep the original glass UI on mobile; only the layout above is compact. */
+  @media screen and (max-width: 540px) {
+    .palette-panel,
+    .control-panel,
+    .result-panel,
+    .collection-panel {
+      border: 1px solid var(--line);
+      border-radius: 1rem;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+    }
+
+    .palette-panel {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.42));
+      padding: 0.7rem 0.1rem;
+    }
+
+    .palette-panel::after {
+      display: block;
+    }
+
+    .tile-palette {
+      padding: 0;
+    }
+
+    .tile-row {
+      justify-content: center;
+    }
+
+    :deep(.tile-palette .tile-button) {
+      --tile-height: 3.15rem;
+      padding: 0.1rem;
+    }
+
+    .control-panel {
+      background:
+        radial-gradient(circle at 0% 0%, rgba(192, 237, 255, 0.26), transparent 12rem),
+        linear-gradient(150deg, rgba(255, 255, 255, 0.72), rgba(239, 248, 252, 0.42));
+      padding: 0.5rem;
+    }
+
+    .action-row {
+      padding-top: 0.45rem;
+    }
+
+    .action-row::before {
+      display: block;
+    }
+
+    :deep(.action-button) {
+      align-items: center;
+      border-radius: 0.72rem;
+      font-size: 0.84rem;
+      justify-content: center;
+      min-height: 2.45rem;
+    }
+
+    :deep(.clear-button.n-button .n-button__border),
+    :deep(.calculate-button.n-button .n-button__border) {
+      border-color: rgba(255, 255, 255, 0.74) !important;
+    }
+
+    .control-section {
+      background: linear-gradient(145deg, rgba(255, 255, 255, 0.54), rgba(226, 241, 248, 0.3));
+      backdrop-filter: blur(0.95rem) saturate(155%);
+      -webkit-backdrop-filter: blur(0.95rem) saturate(155%);
+      border: 1px double rgba(255, 255, 255, 0.7);
+      border-radius: 0.92rem;
+      box-shadow:
+        inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.82),
+        inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.74),
+        inset 0 0 3px rgba(15, 23, 42, 0.12),
+        0 0.5rem 1.1rem rgba(44, 83, 113, 0.06);
+      overflow: hidden;
+      padding: 0.35rem 0.45rem;
+    }
+
+    .control-section::before,
+    .control-section::after {
+      display: block;
+    }
+
+    :deep(.field-row .n-base-selection .n-base-selection-label),
+    :deep(.field-row .n-input-number .n-input) {
+      border-radius: 0.62rem;
+    }
+
+    .field-row {
+      min-height: 2.25rem;
+    }
+
+    :deep(.field-row .n-base-selection),
+    :deep(.field-row .n-input-number),
+    :deep(.field-row .n-input),
+    :deep(.field-row .n-base-selection .n-base-selection-label),
+    :deep(.field-row .n-input-number .n-input) {
+      height: 2.15rem;
+      min-height: 2.15rem;
+    }
+
+    :deep(.yaku-list .n-checkbox) {
+      align-items: center;
+      background: rgba(255, 255, 255, 0.16);
+      border: 1px solid transparent;
+      border-radius: 0.52rem;
+      min-height: 1.78rem;
+      padding: 0.16rem 0.28rem;
+    }
+
+    .result-panel {
+      background:
+        radial-gradient(circle at 82% 10%, rgba(221, 214, 255, 0.52), transparent 13rem),
+        linear-gradient(145deg, rgba(255, 255, 255, 0.76), rgba(247, 250, 255, 0.52));
+      min-height: 8rem;
+      padding: 0.7rem;
+    }
+
+    .empty-result {
+      align-items: center;
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      flex: 1;
+      gap: 0.45rem;
+      justify-content: center;
+      min-height: 0;
+      padding: 0;
+      text-align: center;
+    }
+
+    .empty-result strong {
+      color: var(--text);
+      font-size: 1.05rem;
+      font-weight: 700;
+      letter-spacing: normal;
+      line-height: normal;
+      white-space: normal;
+      width: auto;
+    }
+
+    .empty-result-icon {
+      display: inline-flex;
+    }
+
+    .empty-result span:last-child {
+      display: inline;
+      font-size: 0.8rem;
+    }
+
+    .collection-panel {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.66), rgba(255, 255, 255, 0.42));
+      padding: 0.55rem;
+    }
+
+    .collection-heading {
+      gap: 0.6rem;
+      margin-bottom: 0.58rem;
+    }
+
+    .collection-heading > div {
+      align-items: baseline;
+      display: flex;
+      gap: 0.45rem;
+    }
+
+    .collection-count,
+    .collection-help {
+      display: inline;
+    }
+
+    .box {
+      background: rgba(255, 255, 255, 0.32);
+      border-radius: 0.72rem;
+      min-height: 4.1rem;
+      padding: 0.42rem;
+    }
+
+    .drop-placeholder {
+      font-size: 0.76rem;
+      min-height: 3.1rem;
+    }
+  }
+
+  @media screen and (max-width: 360px) {
+    :deep(.tile-palette .tile-button) {
+      --tile-height: 2.9rem;
     }
   }
 

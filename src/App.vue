@@ -800,87 +800,30 @@
   }
 
   @media screen and (max-width: 640px) {
-    html {
-      background: #ffffff;
-    }
-
-    body {
-      background: #ffffff;
-    }
-
-    body::before,
-    body::after {
-      display: none;
-    }
-
     #root {
-      --nav-height: 3rem;
+      --nav-height: 4.1rem;
     }
 
     .app-header {
-      background: rgba(255, 255, 255, 0.94);
-      border-bottom: 1px solid rgba(82, 121, 153, 0.16);
-      border-radius: 0;
-      box-shadow: 0 0.2rem 0.55rem rgba(44, 83, 113, 0.08);
-      height: var(--nav-height);
-      padding: 0 0.45rem;
-    }
-
-    .app-header.lggc {
-      background: rgba(255, 255, 255, 0.94);
-      border-radius: 0;
-      box-shadow: 0 0.2rem 0.55rem rgba(44, 83, 113, 0.08);
-      overflow: visible;
-    }
-
-    .app-header.lggc::before,
-    .app-header.lggc::after {
-      display: none;
+      padding-inline: 0.85rem;
     }
 
     .nav-shell {
-      gap: 0;
-      min-width: 0;
+      gap: 0.65rem;
     }
 
     .brand-mark {
-      display: none;
+      font-size: 1rem;
     }
 
     .main-navigation {
-      flex: 0 0 auto;
-      min-width: 0;
-      width: auto;
-    }
-
-    .main-navigation .segmented-track {
-      --segment-gap: 0;
-      --segment-inset: 0;
-      background: transparent;
-      border: 0;
-      box-shadow: none;
-      padding: 0;
-    }
-
-    .main-navigation .segmented-indicator {
-      background: transparent;
-      border: 0;
-      border-bottom: 2px solid var(--teal);
-      border-radius: 0;
-      box-shadow: none;
-      height: 100%;
-      top: 0;
-    }
-
-    .main-navigation .segmented-indicator::before,
-    .main-navigation .segmented-indicator::after {
-      display: none;
+      flex-basis: 10.8rem;
+      min-width: 10.8rem;
     }
 
     .main-navigation .segmented-option {
-      font-size: 0.9rem;
-      min-height: 2rem;
-      padding: 0 0.45rem;
+      font-size: 0.85rem;
+      padding-inline: 0.55rem;
     }
 
     .main-navigation .segmented-option-label {
@@ -889,21 +832,8 @@
     }
 
     #content {
-      padding-top: 2.5rem;
-      padding-inline: 0.25rem;
-      padding-bottom: 0;
-    }
-
-    #nav-buttons {
-      gap: 0;
-    }
-
-    .icon-button {
-      background: transparent;
-      border: 0;
-      border-radius: 50%;
-      height: 2rem;
-      width: 2rem;
+      padding-top: var(--nav-height);
+      padding-inline: 0.75rem;
     }
 
     .custom-card .n-card__content {
