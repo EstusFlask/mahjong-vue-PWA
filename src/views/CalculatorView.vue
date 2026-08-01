@@ -223,7 +223,7 @@
         </div>
         <div v-else class="empty-result">
           <span class="empty-result-icon">＋</span>
-          <strong>无役 / 无和牌型</strong>
+          <strong>无役/无和牌型</strong>
           <span>补齐 14 张手牌后计算结果会显示在这里。</span>
         </div>
       </section>
@@ -1065,6 +1065,8 @@ export default {
     font-weight: 700;
     min-height: 2.45rem;
     overflow: hidden;
+    --n-color-pressed: rgba(255, 255, 255, 0.44) !important;
+    --n-ripple-color: transparent !important;
     transition:
       background-color 180ms ease,
       border-color 180ms ease,
@@ -1089,6 +1091,7 @@ export default {
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
       0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
     color: var(--muted);
+    --n-text-color-pressed: var(--muted) !important;
   }
 
   :deep(.calculate-button.n-button:hover) {
@@ -1113,6 +1116,7 @@ export default {
       inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
       0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
     color: var(--danger);
+    --n-text-color-pressed: var(--danger) !important;
   }
 
   :deep(.clear-button.n-button:hover) {
@@ -1129,8 +1133,8 @@ export default {
   }
 
   :deep(.action-button.n-button:focus-visible) {
-    outline: 0.15rem solid rgba(25, 142, 176, 0.42);
-    outline-offset: 0.14rem;
+    outline: none;
+    outline-offset: 0;
   }
 
   :deep(.n-button--disabled) {
@@ -1678,6 +1682,12 @@ export default {
       width: 1px;
     }
 
+    .section-heading > div {
+      height: 1px;
+      overflow: hidden;
+      width: 1px;
+    }
+
     .tile-palette {
       gap: 0;
       margin: 0;
@@ -1741,6 +1751,14 @@ export default {
       min-height: 2.2rem;
     }
 
+    :deep(.clear-button.n-button .n-button__border) {
+      border-color: rgba(208, 48, 80, 0.48) !important;
+    }
+
+    :deep(.calculate-button.n-button .n-button__border) {
+      border-color: rgba(24, 160, 88, 0.22) !important;
+    }
+
     .control-section {
       background: transparent;
       backdrop-filter: none;
@@ -1787,7 +1805,7 @@ export default {
       display: grid;
       font-size: 0.68rem;
       gap: 0.3rem;
-      grid-template-columns: 3.45rem minmax(0, 1fr);
+      grid-template-columns: 5rem minmax(0, 1fr);
       min-height: 2.5rem;
     }
 
@@ -1827,6 +1845,7 @@ export default {
     }
 
     :deep(.yaku-list .n-checkbox__label) {
+      color: var(--text);
       font-size: 0.68rem;
       line-height: 1.1;
     }
@@ -1855,10 +1874,10 @@ export default {
 
     .empty-result strong {
       color: #111111;
-      font-size: clamp(2.1rem, 11vw, 2.65rem);
-      font-weight: 500;
-      letter-spacing: -0.08em;
-      line-height: 1.1;
+      font-size: 3.125rem;
+      font-weight: 400;
+      letter-spacing: normal;
+      line-height: 1.6;
       white-space: nowrap;
       width: 100%;
     }
@@ -1948,6 +1967,25 @@ export default {
 
     .drag-ghost img {
       height: 3.35rem;
+    }
+  }
+
+  @media screen and (max-width: 360px) {
+    .tile-palette {
+      overflow-x: hidden;
+    }
+
+    .tile-row {
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    :deep(.tile-palette .tile-button) {
+      --tile-height: 2.9rem;
+    }
+
+    .empty-result strong {
+      font-size: 2.75rem;
     }
   }
 
