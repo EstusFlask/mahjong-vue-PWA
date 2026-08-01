@@ -3,10 +3,14 @@
     <header class="app-header lggc">
       <nav class="nav-shell" aria-label="主导航">
         <div class="brand-mark" aria-label="雀算">雀算</div>
-        <div class="nav-links">
-          <router-link class="nav" to="/calculator">计算器</router-link>
-          <router-link class="nav" to="/practice">点数练习</router-link>
-        </div>
+        <segmented-control
+          class="main-navigation"
+          :model-value="activeSection"
+          :options="sectionOptions"
+          semantics="tab"
+          aria-label="主导航"
+          @update:model-value="navigateTo"
+        />
       </nav>
 
       <div id="nav-buttons" aria-label="辅助功能">
@@ -36,7 +40,11 @@
     </header>
     
     <div id="content">
-      <router-view :rule="rule"/>
+      <router-view v-slot="{ Component, route }">
+        <transition :name="transitionDirection" mode="out-in">
+          <component :is="Component" :key="route.fullPath" :rule="rule" />
+        </transition>
+      </router-view>
     </div>
 
 
@@ -68,13 +76,8 @@
             <strong>食断</strong>
             <span>允许副露断幺九</span>
           </div>
-          <n-radio-group v-model:value="rule.shiDuan" class="settings-segmented">
-            <n-radio-button
-              v-for="o in settings[0]" :key="o.value"
-              :value="o.value"
-              :label="o.label"
-            />
-          </n-radio-group>
+          <segmented-control v-model="rule.shiDuan" class="settings-segmented"
+            :options="settings[0]" aria-label="食断" />
         </div>
 
         <div class="settings-row">
@@ -82,13 +85,8 @@
             <strong>多倍役满</strong>
             <span>役满可按倍数累计</span>
           </div>
-          <n-radio-group v-model:value="rule.duoBeiYiMan" class="settings-segmented">
-            <n-radio-button
-              v-for="o in settings[0]" :key="o.value"
-              :value="o.value"
-              :label="o.label"
-            />
-          </n-radio-group>
+          <segmented-control v-model="rule.duoBeiYiMan" class="settings-segmented"
+            :options="settings[0]" aria-label="多倍役满" />
         </div>
 
         <div class="settings-row">
@@ -96,13 +94,8 @@
             <strong>复合役满</strong>
             <span>允许多个役满同时成立</span>
           </div>
-          <n-radio-group v-model:value="rule.fuHeYiMan" class="settings-segmented">
-            <n-radio-button
-              v-for="o in settings[0]" :key="o.value"
-              :value="o.value"
-              :label="o.label"
-            />
-          </n-radio-group>
+          <segmented-control v-model="rule.fuHeYiMan" class="settings-segmented"
+            :options="settings[0]" aria-label="复合役满" />
         </div>
 
         <div class="settings-row">
@@ -110,13 +103,8 @@
             <strong>连风雀头</strong>
             <span>连风雀头的符数</span>
           </div>
-          <n-radio-group v-model:value="rule.lianFeng4" class="settings-segmented">
-            <n-radio-button
-              v-for="o in settings[1]" :key="o.value"
-              :value="o.value"
-              :label="o.label"
-            />
-          </n-radio-group>
+          <segmented-control v-model="rule.lianFeng4" class="settings-segmented"
+            :options="settings[1]" aria-label="连风雀头" />
         </div>
 
         <div class="settings-row">
@@ -124,13 +112,8 @@
             <strong>13翻及以上</strong>
             <span>累计役满或三倍满</span>
           </div>
-          <n-radio-group v-model:value="rule.allowLeiMan" class="settings-segmented">
-            <n-radio-button
-              v-for="o in settings[2]" :key="o.value"
-              :value="o.value"
-              :label="o.label"
-            />
-          </n-radio-group>
+          <segmented-control v-model="rule.allowLeiMan" class="settings-segmented"
+            :options="settings[2]" aria-label="13翻及以上" />
         </div>
       </div>
     </n-modal>
@@ -183,7 +166,8 @@
 
 <script>
   import { Rule } from './store/definition'
-  import { NModal,NRadioGroup,NRadioButton, NIcon} from 'naive-ui'
+  import { NModal, NIcon} from 'naive-ui'
+  import SegmentedControl from './components/SegmentedControl.vue'
   import { SettingsRound,InfoRound } from '@vicons/material'
 
   export default{
@@ -193,18 +177,37 @@
         rule:new Rule(),
         showSetting:false,
         showInfo:false,
-
+        transitionDirection:'page-switch-forward',
 
         settings:[
           [{value:1,label:"有"},{value:0,label:"无"}],
           [{value:0,label:"2符"},{value:1,label:"4符"}],
           [{value:1,label:"累计役满"},{value:0,label:"三倍满"}],
         ],
+        sectionOptions:[
+          {value:'calculator',label:'计算器'},
+          {value:'practice',label:'点数练习'},
+        ],
       }
     },
     components: {
-      NModal,NRadioGroup,NRadioButton,NIcon,
+      NModal,NIcon,SegmentedControl,
       SettingsRound,InfoRound
+    },
+    computed:{
+      activeSection(){
+        return this.$route.name === 'practice' ? 'practice' : 'calculator'
+      },
+    },
+    watch:{
+      $route(to,from){
+        const routeOrder = {calculator:0,practice:1}
+        const toIndex = routeOrder[to.name] ?? 0
+        const fromIndex = routeOrder[from.name] ?? 0
+        this.transitionDirection = toIndex >= fromIndex
+          ? 'page-switch-forward'
+          : 'page-switch-back'
+      },
     },
     created(){
       if(localStorage.getItem('rule')!=null){
@@ -212,6 +215,11 @@
       }
     },
     methods:{
+      navigateTo(section){
+        if(section !== this.activeSection){
+          this.$router.push({name:section})
+        }
+      },
       updateData(){
         localStorage.setItem('rule',JSON.stringify(this.rule))
       }
@@ -346,7 +354,6 @@
   }
 
   .nav-shell,
-  .nav-links,
   #nav-buttons {
     align-items: center;
     display: flex;
@@ -374,39 +381,13 @@
     width: 0.35rem;
   }
 
-  .nav-links {
-    background: rgba(255, 255, 255, 0.42);
-    border: 1px solid rgba(255, 255, 255, 0.78);
-    border-radius: 999px;
-    gap: 0.2rem;
-    padding: 0.2rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0.4rem 1.2rem rgba(44, 83, 113, 0.06);
+  .main-navigation {
+    flex: 0 0 10.8rem;
+    min-width: 10.8rem;
   }
 
-  .nav {
-    border-radius: 999px;
-    color: var(--muted);
-    font-size: 0.92rem;
-    font-weight: 650;
-    letter-spacing: 0.01em;
-    padding: 0.55rem 0.95rem;
-    text-align: center;
-    text-decoration: none;
-    transition:
-      background-color 180ms ease,
-      color 180ms ease,
-      transform 180ms cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .nav:hover {
-    color: var(--teal-strong);
-    transform: translateY(-0.05rem);
-  }
-
-  a.nav.router-link-exact-active {
-    background: rgba(255, 255, 255, 0.78);
-    box-shadow: 0 0.35rem 0.8rem rgba(46, 123, 161, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.92);
-    color: var(--teal-strong);
+  .main-navigation .segmented-option {
+    padding-inline: 0.65rem;
   }
 
   #nav-buttons {
@@ -448,7 +429,6 @@
   }
 
   .pressable:focus-visible,
-  .nav:focus-visible,
   .tile-button:focus-visible {
     outline: 0.15rem solid rgba(25, 142, 176, 0.7);
     outline-offset: 0.18rem;
@@ -526,6 +506,37 @@
     padding: calc(var(--nav-height) + 0.25rem) clamp(0.9rem, 2.4vw, 2.6rem) 0.4rem;
   }
 
+  .page-switch-forward-enter-active,
+  .page-switch-forward-leave-active,
+  .page-switch-back-enter-active,
+  .page-switch-back-leave-active {
+    transform-origin: center top;
+    transition:
+      opacity 220ms ease,
+      transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: opacity, transform;
+  }
+
+  .page-switch-forward-enter-from {
+    opacity: 0;
+    transform: translate3d(1.5rem, 0, 0) scale(0.99);
+  }
+
+  .page-switch-forward-leave-to {
+    opacity: 0;
+    transform: translate3d(-1.5rem, 0, 0) scale(0.99);
+  }
+
+  .page-switch-back-enter-from {
+    opacity: 0;
+    transform: translate3d(-1.5rem, 0, 0) scale(0.99);
+  }
+
+  .page-switch-back-leave-to {
+    opacity: 0;
+    transform: translate3d(1.5rem, 0, 0) scale(0.99);
+  }
+
   .n-modal-container {
     padding: 1rem;
   }
@@ -554,6 +565,10 @@
     color: var(--text);
     margin: 0.12rem 0.2rem;
     transition: background-color 140ms ease, color 140ms ease, transform 120ms ease;
+  }
+
+  .n-base-select-menu .n-base-select-option::before {
+    background: transparent !important;
   }
 
   .n-base-select-menu .n-base-select-option:hover,
@@ -632,15 +647,6 @@
 
   .custom-card ol {
     margin-bottom: 0;
-  }
-
-  .custom-card .n-radio-button {
-    --n-button-color: rgba(255, 255, 255, 0.58);
-    --n-button-color-active: rgba(213, 242, 255, 0.9);
-    --n-button-border-color: rgba(82, 121, 153, 0.16);
-    --n-button-border-color-active: rgba(25, 142, 176, 0.36);
-    --n-button-text-color: var(--muted);
-    --n-button-text-color-active: var(--teal-strong);
   }
 
   .modal-kicker {
@@ -740,48 +746,23 @@
   }
 
   .settings-segmented {
-    display: flex;
     flex: 0 0 auto;
+    min-width: 9rem;
   }
 
-  .custom-card .settings-segmented .n-radio-button {
-    align-items: center;
-    background: rgba(255, 255, 255, 0.48) !important;
-    border: 1px solid rgba(82, 121, 153, 0.14) !important;
-    color: var(--muted) !important;
-    display: inline-flex;
+  .custom-card .settings-segmented .segmented-track {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(226, 240, 247, 0.62));
+    border-color: rgba(82, 121, 153, 0.2);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.95),
+      inset 0 -1px 0 rgba(82, 121, 153, 0.1),
+      0 0.5rem 1rem rgba(44, 83, 113, 0.08);
+  }
+
+  .custom-card .settings-segmented .segmented-option {
     font-size: 0.74rem;
-    font-weight: 650;
-    justify-content: center;
     min-height: 2.15rem;
-    min-width: 3.1rem;
     padding-inline: 0.55rem;
-    transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, color 150ms ease, transform 120ms ease;
-  }
-
-  .custom-card .settings-segmented .n-radio-button:hover:not(.n-radio-button--checked) {
-    background: rgba(220, 244, 255, 0.72) !important;
-    border-color: rgba(25, 142, 176, 0.28) !important;
-    color: var(--teal-strong) !important;
-  }
-
-  .custom-card .settings-segmented .n-radio-button--checked {
-    background: linear-gradient(135deg, #35a9d0, #268ac1) !important;
-    border-color: rgba(255, 255, 255, 0.72) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), 0 0.3rem 0.7rem rgba(41, 135, 187, 0.16);
-    color: #ffffff !important;
-  }
-
-  .custom-card .settings-segmented .n-radio-button:active {
-    transform: scale(0.96);
-  }
-
-  .custom-card .settings-segmented .n-radio-button:first-child {
-    border-radius: 0.62rem 0 0 0.62rem;
-  }
-
-  .custom-card .settings-segmented .n-radio-button:last-child {
-    border-radius: 0 0.62rem 0.62rem 0;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -797,7 +778,7 @@
 
   @media (prefers-reduced-transparency: reduce) {
     .app-header,
-    .nav-links,
+    .main-navigation .segmented-track,
     .icon-button {
       backdrop-filter: none;
       background: var(--surface-strong);
@@ -835,9 +816,19 @@
       font-size: 1rem;
     }
 
-    .nav {
-      font-size: 0.82rem;
-      padding-inline: 0.72rem;
+    .main-navigation {
+      flex-basis: 10.8rem;
+      min-width: 10.8rem;
+    }
+
+    .main-navigation .segmented-option {
+      font-size: 0.85rem;
+      padding-inline: 0.55rem;
+    }
+
+    .main-navigation .segmented-option-label {
+      overflow: visible;
+      text-overflow: clip;
     }
 
     #content {
@@ -864,8 +855,20 @@
       width: 100%;
     }
 
-    .custom-card .settings-segmented .n-radio-button {
-      flex: 1;
+    .custom-card .settings-segmented {
+      min-width: 0;
+    }
+  }
+
+  @media screen and (max-width: 400px) {
+    .main-navigation {
+      flex-basis: 10.5rem;
+      min-width: 10.5rem;
+    }
+
+    .main-navigation .segmented-option {
+      font-size: 0.8rem;
+      padding-inline: 0.35rem;
     }
   }
 </style>

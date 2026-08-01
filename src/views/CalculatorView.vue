@@ -960,9 +960,13 @@ export default {
   }
 
   .control-panel {
+    background:
+      radial-gradient(circle at 0% 0%, rgba(192, 237, 255, 0.26), transparent 12rem),
+      linear-gradient(150deg, rgba(255, 255, 255, 0.72), rgba(239, 248, 252, 0.42));
     display: flex;
     flex-direction: column;
     grid-area: controls;
+    isolation: isolate;
   }
 
   .result-panel {
@@ -984,9 +988,15 @@ export default {
 
   .control-status {
     align-items: center;
-    background: rgba(255, 255, 255, 0.42);
-    border: 1px solid rgba(82, 121, 153, 0.14);
+    background: rgba(255, 255, 255, 0.36);
+    backdrop-filter: blur(0.7rem) saturate(145%);
+    -webkit-backdrop-filter: blur(0.7rem) saturate(145%);
+    border: 1px double rgba(255, 255, 255, 0.68);
     border-radius: 999px;
+    box-shadow:
+      inset 1px -1px 1px -1px rgba(255, 255, 255, 0.82),
+      inset 0 0 2px rgba(15, 23, 42, 0.1),
+      0 0.2rem 0.48rem rgba(44, 83, 113, 0.05);
     color: var(--muted);
     display: inline-flex;
     flex: 0 0 auto;
@@ -1031,36 +1041,86 @@ export default {
     display: grid;
     gap: 0.5rem;
     grid-template-columns: 1fr 1fr;
-    margin-top: 0.85rem;
+    margin-top: 0.95rem;
+    padding-top: 0.75rem;
+    position: relative;
+  }
+
+  .action-row::before {
+    background: linear-gradient(90deg, transparent, rgba(82, 121, 153, 0.14), transparent);
+    content: "";
+    height: 1px;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
   }
 
   :deep(.action-button) {
+    backdrop-filter: blur(0.8rem) saturate(155%);
+    -webkit-backdrop-filter: blur(0.8rem) saturate(155%);
+    border-style: double;
     border-radius: 0.72rem;
     font-size: 0.84rem;
     font-weight: 700;
     min-height: 2.45rem;
+    overflow: hidden;
+    transition:
+      background-color 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  :deep(.action-button .n-button__border) {
+    border-color: rgba(255, 255, 255, 0.74) !important;
+  }
+
+  :deep(.action-button .n-button__state-border) {
+    border-color: transparent !important;
+    box-shadow: none !important;
   }
 
   :deep(.calculate-button.n-button) {
-    background: linear-gradient(135deg, #36a9d2, #2589c5);
-    border-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 0.6rem 1.2rem rgba(41, 135, 187, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.42);
+    background: linear-gradient(135deg, rgba(58, 174, 215, 0.88), rgba(37, 139, 197, 0.82));
+    border-color: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
+      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
     color: #ffffff;
   }
 
   :deep(.calculate-button.n-button:hover) {
-    background: linear-gradient(135deg, #4eb9df, #3198d2);
-    box-shadow: 0 0.8rem 1.5rem rgba(41, 135, 187, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    background: linear-gradient(135deg, rgba(78, 185, 223, 0.94), rgba(49, 152, 210, 0.88));
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
+      0 0.55rem 1rem rgba(44, 83, 113, 0.09);
+  }
+
+  :deep(.calculate-button.n-button.n-button--disabled) {
+    background: rgba(255, 255, 255, 0.44);
+    color: var(--muted);
   }
 
   :deep(.clear-button.n-button) {
-    background: rgba(255, 255, 255, 0.46);
-    border-color: rgba(198, 93, 112, 0.36);
+    background: rgba(255, 255, 255, 0.44);
+    border-color: rgba(255, 255, 255, 0.72);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
+      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
     color: var(--danger);
   }
 
   :deep(.clear-button.n-button:hover) {
-    background: rgba(255, 231, 235, 0.8);
+    background: rgba(255, 231, 235, 0.78);
+    border-color: rgba(255, 255, 255, 0.86);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
+      0 0.55rem 1rem rgba(44, 83, 113, 0.09);
   }
 
   :deep(.action-button.n-button:active) {
@@ -1083,11 +1143,47 @@ export default {
   }
 
   .control-section {
-    background: linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(237, 247, 252, 0.22));
-    border: 1px solid rgba(82, 121, 153, 0.13);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.54), rgba(226, 241, 248, 0.3));
+    backdrop-filter: blur(0.95rem) saturate(155%);
+    -webkit-backdrop-filter: blur(0.95rem) saturate(155%);
+    border: 1px double rgba(255, 255, 255, 0.7);
     border-radius: 0.92rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.58);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.82),
+      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.74),
+      inset 0 0 3px rgba(15, 23, 42, 0.12),
+      0 0.5rem 1.1rem rgba(44, 83, 113, 0.06);
+    isolation: isolate;
+    overflow: hidden;
     padding: 0.68rem 0.7rem 0.72rem;
+    position: relative;
+  }
+
+  .control-section::before,
+  .control-section::after {
+    border-radius: inherit;
+    content: "";
+    pointer-events: none;
+    position: absolute;
+  }
+
+  .control-section::before {
+    border: 1px double rgba(48, 91, 117, 0.14);
+    filter: blur(0.85rem);
+    height: calc(100% - 1rem);
+    left: 0.5rem;
+    top: 35%;
+    width: calc(100% - 1rem);
+  }
+
+  .control-section::after {
+    background: linear-gradient(115deg, rgba(255, 255, 255, 0.24), transparent 34%, rgba(255, 255, 255, 0.12));
+    inset: 0;
+  }
+
+  .control-section > * {
+    position: relative;
+    z-index: 1;
   }
 
   .field-section {
@@ -1126,9 +1222,15 @@ export default {
 
   .section-index {
     align-items: center;
-    background: rgba(255, 255, 255, 0.42);
-    border: 1px solid rgba(82, 121, 153, 0.12);
+    background: rgba(255, 255, 255, 0.34);
+    backdrop-filter: blur(0.7rem) saturate(150%);
+    -webkit-backdrop-filter: blur(0.7rem) saturate(150%);
+    border: 1px double rgba(255, 255, 255, 0.72);
     border-radius: 0.45rem;
+    box-shadow:
+      inset 1px -1px 1px -1px rgba(255, 255, 255, 0.82),
+      inset 0 0 2px rgba(15, 23, 42, 0.12),
+      0 0.2rem 0.45rem rgba(44, 83, 113, 0.06);
     color: rgba(100, 117, 139, 0.72);
     display: inline-flex;
     font-size: 0.62rem;
@@ -1163,29 +1265,45 @@ export default {
 
   :deep(.field-row .n-base-selection .n-base-selection-label),
   :deep(.field-row .n-input-number .n-input) {
-    background: rgba(255, 255, 255, 0.6);
-    border-color: rgba(82, 121, 153, 0.16);
+    background: rgba(255, 255, 255, 0.42);
+    backdrop-filter: blur(0.7rem) saturate(145%);
+    -webkit-backdrop-filter: blur(0.7rem) saturate(145%);
+    border-color: rgba(255, 255, 255, 0.66);
     border-radius: 0.62rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
-    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+    box-shadow:
+      inset 1px -1px 1px -1px rgba(255, 255, 255, 0.84),
+      inset 0 0 2px rgba(15, 23, 42, 0.1),
+      0 0.22rem 0.5rem rgba(44, 83, 113, 0.04);
+    transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
   }
 
   :deep(.field-row .n-base-selection:hover .n-base-selection-label),
   :deep(.field-row .n-input-number:hover .n-input) {
-    background: rgba(255, 255, 255, 0.82);
+    background: rgba(255, 255, 255, 0.7);
     border-color: rgba(25, 142, 176, 0.42);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.14rem rgba(25, 142, 176, 0.08);
+    box-shadow:
+      inset 1px -1px 1px -1px rgba(255, 255, 255, 0.92),
+      inset 0 0 2px rgba(15, 23, 42, 0.1),
+      0 0 0 0.14rem rgba(25, 142, 176, 0.08),
+      0 0.35rem 0.7rem rgba(44, 83, 113, 0.07);
   }
 
   :deep(.field-row .n-base-selection:focus-within .n-base-selection-label),
   :deep(.field-row .n-input-number:focus-within .n-input) {
     border-color: rgba(25, 142, 176, 0.52);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 0 0 0.16rem rgba(25, 142, 176, 0.11);
+    box-shadow:
+      inset 1px -1px 1px -1px rgba(255, 255, 255, 0.94),
+      inset 0 0 2px rgba(15, 23, 42, 0.1),
+      0 0 0 0.16rem rgba(25, 142, 176, 0.11);
   }
 
   :deep(.field-row .n-base-selection__state-border) {
-    border-color: rgba(25, 142, 176, 0.52) !important;
-    box-shadow: 0 0 0 0.16rem rgba(25, 142, 176, 0.11);
+    border-color: transparent !important;
+    box-shadow: none !important;
+  }
+
+  :deep(.field-row .n-base-selection__border) {
+    border-color: transparent !important;
   }
 
   :deep(.field-row .n-base-selection-label) {
@@ -1214,14 +1332,17 @@ export default {
   }
 
   :deep(.yaku-list .n-checkbox) {
+    background: rgba(255, 255, 255, 0.16);
+    border: 1px solid transparent;
     border-radius: 0.52rem;
     min-height: 1.78rem;
     padding: 0.16rem 0.28rem;
-    transition: background-color 150ms ease, color 150ms ease, transform 120ms ease;
+    transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease, transform 120ms ease;
   }
 
   :deep(.yaku-list .n-checkbox:hover) {
-    background: rgba(213, 242, 255, 0.48);
+    background: rgba(213, 242, 255, 0.42);
+    border-color: rgba(255, 255, 255, 0.58);
   }
 
   :deep(.yaku-list .n-checkbox:active) {
@@ -1229,17 +1350,22 @@ export default {
   }
 
   :deep(.yaku-list .n-checkbox-box) {
-    background: rgba(255, 255, 255, 0.56);
-    border-color: rgba(82, 121, 153, 0.25);
+    background: rgba(255, 255, 255, 0.38);
+    border-color: rgba(255, 255, 255, 0.64);
     border-radius: 0.34rem;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76);
+    box-shadow:
+      inset 1px -1px 1px -1px rgba(255, 255, 255, 0.84),
+      inset 0 0 2px rgba(15, 23, 42, 0.1);
     transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease, transform 120ms ease;
   }
 
   :deep(.yaku-list .n-checkbox--checked .n-checkbox-box) {
-    background: linear-gradient(135deg, #39afd5, #258bc2);
+    background: linear-gradient(135deg, rgba(57, 175, 213, 0.88), rgba(37, 139, 194, 0.82));
     border-color: rgba(255, 255, 255, 0.74);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0.25rem 0.65rem rgba(41, 135, 187, 0.16);
+    box-shadow:
+      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
+      inset -1px 1px 1px -1px rgba(255, 255, 255, 0.56),
+      0 0.25rem 0.65rem rgba(41, 135, 187, 0.16);
   }
 
   :deep(.yaku-list .n-checkbox--checked .n-checkbox__label) {
@@ -1554,6 +1680,29 @@ export default {
   @media (prefers-reduced-motion: reduce) {
     .box.is-drag-over {
       transform: none;
+    }
+  }
+
+  @media (prefers-reduced-transparency: reduce) {
+    .control-panel,
+    .control-section,
+    .section-index,
+    .control-status,
+    :deep(.action-button),
+    :deep(.field-row .n-base-selection .n-base-selection-label),
+    :deep(.field-row .n-input-number .n-input),
+    :deep(.yaku-list .n-checkbox),
+    :deep(.yaku-list .n-checkbox-box) {
+      backdrop-filter: none;
+      -webkit-backdrop-filter: none;
+    }
+
+    .control-panel {
+      background: var(--surface-strong);
+    }
+
+    .control-section {
+      background: var(--surface);
     }
   }
 </style>
