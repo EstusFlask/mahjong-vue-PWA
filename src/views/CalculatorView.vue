@@ -840,6 +840,7 @@ export default {
 
 <style scoped>
   .calculator-page {
+    --control-pill-radius: 999px;
     display: grid;
     gap: 0.75rem;
     grid-template-areas:
@@ -1109,7 +1110,7 @@ export default {
     backdrop-filter: blur(0.8rem) saturate(155%);
     -webkit-backdrop-filter: blur(0.8rem) saturate(155%);
     border-style: double;
-    border-radius: 0.8rem;
+    border-radius: var(--control-pill-radius);
     flex: 0 0 auto;
     font-size: 0.84rem;
     font-weight: 700;
@@ -1268,7 +1269,7 @@ export default {
 
   .field-section {
     --field-control-height: 2.5rem;
-    --field-control-radius: 0.62rem;
+    --field-control-radius: var(--control-pill-radius);
     margin-top: 0.82rem;
   }
 
@@ -1826,7 +1827,7 @@ export default {
     }
 
     :deep(.action-button) {
-      border-radius: 0.8rem;
+      border-radius: var(--control-pill-radius);
       font-size: 0.8rem;
       min-height: 2.2rem;
     }
@@ -2120,7 +2121,7 @@ export default {
 
     :deep(.action-button) {
       align-items: center;
-      border-radius: 0.8rem;
+      border-radius: var(--control-pill-radius);
       font-size: 0.84rem;
       justify-content: center;
       min-height: 2.45rem;
