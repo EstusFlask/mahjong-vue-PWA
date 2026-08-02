@@ -1085,9 +1085,9 @@ export default {
   }
 
   .action-row {
-    display: grid;
+    align-items: center;
+    display: flex;
     gap: 0.5rem;
-    grid-template-columns: 1fr 1fr;
     margin-top: 0.95rem;
     padding-top: 0.75rem;
     position: relative;
@@ -1109,11 +1109,14 @@ export default {
     backdrop-filter: blur(0.8rem) saturate(155%);
     -webkit-backdrop-filter: blur(0.8rem) saturate(155%);
     border-style: double;
-    border-radius: 0.72rem;
+    border-radius: 0.8rem;
+    flex: 0 0 auto;
     font-size: 0.84rem;
     font-weight: 700;
     min-height: 2.45rem;
+    min-width: 0;
     overflow: hidden;
+    width: auto;
     transition:
       background-color 180ms ease,
       border-color 180ms ease,
@@ -1264,6 +1267,8 @@ export default {
   }
 
   .field-section {
+    --field-control-height: 2.5rem;
+    --field-control-radius: 0.62rem;
     margin-top: 0.82rem;
   }
 
@@ -1337,7 +1342,9 @@ export default {
   :deep(.field-row .n-base-selection),
   :deep(.field-row .n-input-number),
   :deep(.field-row .n-input) {
-    min-height: 2.3rem;
+    border-radius: var(--field-control-radius);
+    height: var(--field-control-height);
+    min-height: var(--field-control-height);
   }
 
   :deep(.field-row .n-base-selection .n-base-selection-label),
@@ -1346,11 +1353,13 @@ export default {
     backdrop-filter: blur(0.7rem) saturate(145%);
     -webkit-backdrop-filter: blur(0.7rem) saturate(145%);
     border-color: rgba(255, 255, 255, 0.66);
-    border-radius: 0.62rem;
+    border-radius: var(--field-control-radius);
     box-shadow:
       inset 1px -1px 1px -1px rgba(255, 255, 255, 0.84),
       inset 0 0 2px rgba(15, 23, 42, 0.1),
       0 0.22rem 0.5rem rgba(44, 83, 113, 0.04);
+    height: 100%;
+    min-height: 0;
     transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 120ms ease;
   }
 
@@ -1808,7 +1817,6 @@ export default {
       grid-column: 1;
       grid-row: 1;
       gap: 0.15rem;
-      grid-template-columns: 1fr;
       margin-top: 0;
       padding-top: 0;
     }
@@ -1818,7 +1826,7 @@ export default {
     }
 
     :deep(.action-button) {
-      border-radius: 0.22rem;
+      border-radius: 0.8rem;
       font-size: 0.8rem;
       min-height: 2.2rem;
     }
@@ -1878,7 +1886,7 @@ export default {
       font-size: 0.68rem;
       gap: 0.3rem;
       grid-template-columns: 5rem minmax(0, 1fr);
-      min-height: 2.5rem;
+      min-height: var(--field-control-height);
     }
 
     :deep(.field-row .n-base-selection),
@@ -1886,13 +1894,13 @@ export default {
     :deep(.field-row .n-input),
     :deep(.field-row .n-base-selection .n-base-selection-label),
     :deep(.field-row .n-input-number .n-input) {
-      height: 2.35rem;
-      min-height: 2.35rem;
+      height: var(--field-control-height);
+      min-height: var(--field-control-height);
     }
 
     :deep(.field-row .n-base-selection .n-base-selection-label),
     :deep(.field-row .n-input-number .n-input) {
-      border-radius: 0.2rem;
+      border-radius: var(--field-control-radius);
       padding-inline: 0.5rem;
     }
 
@@ -2112,7 +2120,7 @@ export default {
 
     :deep(.action-button) {
       align-items: center;
-      border-radius: 0.72rem;
+      border-radius: 0.8rem;
       font-size: 0.84rem;
       justify-content: center;
       min-height: 2.45rem;
@@ -2145,11 +2153,11 @@ export default {
 
     :deep(.field-row .n-base-selection .n-base-selection-label),
     :deep(.field-row .n-input-number .n-input) {
-      border-radius: 0.62rem;
+      border-radius: var(--field-control-radius);
     }
 
     .field-row {
-      min-height: 2.25rem;
+      min-height: var(--field-control-height);
     }
 
     :deep(.field-row .n-base-selection),
@@ -2157,8 +2165,8 @@ export default {
     :deep(.field-row .n-input),
     :deep(.field-row .n-base-selection .n-base-selection-label),
     :deep(.field-row .n-input-number .n-input) {
-      height: 2.15rem;
-      min-height: 2.15rem;
+      height: var(--field-control-height);
+      min-height: var(--field-control-height);
     }
 
     :deep(.yaku-list .n-checkbox) {
