@@ -96,7 +96,7 @@
           <div v-if="user[2]" class="correct answer-feedback">答案正确</div>
           <div v-else class="wrong answer-feedback">答案错误</div>
         </div>
-        <n-button class="pressable practice-action" @click="onClick()" size="large">{{btnText}}</n-button>
+        <liquid-pill-button class="pressable practice-action" @click="onClick()">{{btnText}}</liquid-pill-button>
       </div>
     </section>
   </main>
@@ -105,7 +105,8 @@
 <script>
   import PaiSelect from '@/components/PaiSelect.vue'
   import BlockSelect from '@/components/BlockSelect.vue'
-  import { NInput, NButton } from 'naive-ui'
+  import { NInput } from 'naive-ui'
+  import LiquidPillButton from '@/components/LiquidPillButton.vue'
 
   import {ProblemGenerator} from '@/store/problem'
 import { CHIIHOU, HOUTEI_RAOYUI, FIELD_WEST, DOUBLE_RIICHI, CHANKAN, HAITEI_RAOYUE, RIICHI, SEAT_NORTH, SEAT_WEST, RON, RINNSHANN_KAIHOU, TENHOU, FIELD_SOUTH, SEAT_EAST, IPPATSU, TSUMO, FIELD_NORTH, FIELD_EAST, SEAT_SOUTH } from "@/store/types"
@@ -127,7 +128,7 @@ import { CHIIHOU, HOUTEI_RAOYUI, FIELD_WEST, DOUBLE_RIICHI, CHANKAN, HAITEI_RAOY
       rule: Object
     },
     components:{
-      PaiSelect,BlockSelect,NInput,NButton
+      PaiSelect,BlockSelect,NInput,LiquidPillButton
     },
     created(){
       this.newProblem()
@@ -481,6 +482,12 @@ import { CHIIHOU, HOUTEI_RAOYUI, FIELD_WEST, DOUBLE_RIICHI, CHANKAN, HAITEI_RAOY
     padding: clamp(1rem, 2.2vw, 1.5rem);
   }
 
+  /* Let the confirmation control sample the page surface directly. */
+  .answer-panel:has(.liquid-glass-button) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .panel-heading {
     align-items: center;
     display: flex;
@@ -636,21 +643,9 @@ import { CHIIHOU, HOUTEI_RAOYUI, FIELD_WEST, DOUBLE_RIICHI, CHANKAN, HAITEI_RAOY
 
   .practice-action {
     align-self: flex-end;
-    border-radius: 0.8rem;
     font-size: 0.92rem;
     font-weight: 700;
     min-width: 7.5rem;
-  }
-
-  .practice-action.n-button {
-    background: linear-gradient(135deg, #36a9d2, #2589c5);
-    border-color: rgba(255, 255, 255, 0.7);
-    box-shadow: 0 0.6rem 1.2rem rgba(41, 135, 187, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.42);
-    color: #ffffff;
-  }
-
-  .practice-action.n-button:hover {
-    background: linear-gradient(135deg, #4eb9df, #3198d2);
   }
 
   @media screen and (max-width: 800px) {

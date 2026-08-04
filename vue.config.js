@@ -1,4 +1,5 @@
 // const { defineConfig } = require('@vue/cli-service')
+const path = require('path')
 // const webpack = require("webpack");
 // module.exports = defineConfig({
 //   transpileDependencies: true
@@ -44,6 +45,11 @@ class InjectPrecacheAssetsPlugin {
 module.exports = {
   publicPath:"/mahjong-vue-PWA/",
   configureWebpack: {
+    resolve: {
+      alias: {
+        '@liquid-glass': path.resolve(__dirname, '../liquid-glass-vue/src/lib')
+      }
+    },
     plugins: [
       new InjectPrecacheAssetsPlugin()
     ]

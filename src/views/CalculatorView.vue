@@ -128,9 +128,9 @@
         </div>
 
         <div class="action-row">
-          <n-button class="pressable action-button clear-button" @click="clearAll()" type="error" ghost size="large">清空</n-button>
-          <n-button class="pressable action-button calculate-button" @click="myCalculate()" type="primary" ghost size="large"
-            :disabled="!calculateEnable">计算</n-button>
+          <liquid-pill-button class="pressable action-button clear-button" @click="clearAll()">清空</liquid-pill-button>
+          <liquid-pill-button class="pressable action-button calculate-button" @click="myCalculate()"
+            :disabled="!calculateEnable">计算</liquid-pill-button>
         </div>
 
         <div class="control-section field-section">
@@ -246,7 +246,8 @@
 <script>
 import PaiSelect from '../components/PaiSelect.vue'
 import BlockSelect from '../components/BlockSelect.vue'
-import { NButton, NSelect, NCheckboxGroup, NCheckbox, NInputNumber} from 'naive-ui'
+import { NSelect, NCheckboxGroup, NCheckbox, NInputNumber} from 'naive-ui'
+import LiquidPillButton from '../components/LiquidPillButton.vue'
 import { next, getType, getNumber } from '@/store/util'
 import { Calculator } from '@/store/calc'
 import { Result} from '@/store/definition'
@@ -257,7 +258,7 @@ export default {
   components: {
     PaiSelect,
     BlockSelect,
-    NButton,
+    LiquidPillButton,
     NSelect,
     NCheckboxGroup,
     NCheckbox, NInputNumber
@@ -1017,6 +1018,12 @@ export default {
     isolation: isolate;
   }
 
+  /* Do not stack the button's refraction on the panel's own blur surface. */
+  .control-panel:has(.liquid-glass-button) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .result-panel {
     grid-area: results;
   }
@@ -1105,117 +1112,25 @@ export default {
   }
 
   :deep(.action-button) {
-    --n-ripple-color: transparent !important;
-    --n-wave-opacity: 0 !important;
-    backdrop-filter: blur(0.8rem) saturate(155%);
-    -webkit-backdrop-filter: blur(0.8rem) saturate(155%);
-    border-style: double;
-    border-radius: var(--control-pill-radius);
     flex: 0 0 auto;
-    font-size: 0.84rem;
-    font-weight: 700;
-    min-height: 2.45rem;
     min-width: 0;
-    overflow: hidden;
     width: auto;
-    transition:
-      background-color 180ms ease,
-      border-color 180ms ease,
-      box-shadow 180ms ease,
-      transform 120ms cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  :deep(.action-button .n-button__border) {
-    border-color: rgba(255, 255, 255, 0.74) !important;
-  }
-
-  :deep(.action-button .n-button__state-border) {
-    border-color: transparent !important;
-    box-shadow: none !important;
-  }
-
-  :deep(.action-button .n-base-wave) {
-    display: none;
-  }
-
-  :deep(.calculate-button.n-button) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
-    box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
-      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
+  :deep(.calculate-button) {
     color: var(--success);
   }
 
-  :deep(.calculate-button.n-button:hover) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
-    box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.94),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.78),
-      0 0.55rem 1rem rgba(44, 83, 113, 0.09);
+  :deep(.clear-button) {
+    color: var(--danger);
+  }
+
+  :deep(.calculate-button:hover:not(:disabled)) {
     color: var(--success);
   }
 
-  :deep(.calculate-button.n-button.n-button--disabled) {
-    background: rgba(255, 255, 255, 0.44);
-    color: var(--muted);
-  }
-
-  :deep(.clear-button.n-button) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
-    box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
-      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
+  :deep(.clear-button:hover:not(:disabled)) {
     color: var(--danger);
-  }
-
-  :deep(.clear-button.n-button:hover) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
-    box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
-      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
-    color: var(--danger);
-  }
-
-  :deep(.action-button.n-button:active),
-  :deep(.action-button.n-button:focus) {
-    background: rgba(255, 255, 255, 0.44);
-    border-color: rgba(255, 255, 255, 0.72);
-    box-shadow:
-      inset 1.5px -1.5px 1px -1px rgba(255, 255, 255, 0.88),
-      inset -1.5px 1.5px 1px -1px rgba(255, 255, 255, 0.68),
-      0 0.35rem 0.8rem rgba(44, 83, 113, 0.07);
-  }
-
-  :deep(.calculate-button.n-button:active),
-  :deep(.calculate-button.n-button:focus) {
-    color: var(--success);
-  }
-
-  :deep(.clear-button.n-button:active),
-  :deep(.clear-button.n-button:focus) {
-    color: var(--danger);
-  }
-
-  :deep(.action-button.n-button:active),
-  :deep(.action-button.n-button.is-pressing) {
-    transform: scale(0.97) translateY(0.03rem);
-  }
-
-  :deep(.action-button.n-button:focus-visible) {
-    outline: 0.15rem solid transparent;
-    outline-offset: 0.14rem;
-  }
-
-  :deep(.n-button--disabled) {
-    filter: saturate(0.45);
-    opacity: 0.42;
   }
 
   .line {
@@ -1827,17 +1742,7 @@ export default {
     }
 
     :deep(.action-button) {
-      border-radius: var(--control-pill-radius);
       font-size: 0.8rem;
-      min-height: 2.2rem;
-    }
-
-    :deep(.clear-button.n-button .n-button__border) {
-      border-color: rgba(208, 48, 80, 0.48) !important;
-    }
-
-    :deep(.calculate-button.n-button .n-button__border) {
-      border-color: rgba(24, 160, 88, 0.22) !important;
     }
 
     .control-section {
@@ -2121,15 +2026,8 @@ export default {
 
     :deep(.action-button) {
       align-items: center;
-      border-radius: var(--control-pill-radius);
       font-size: 0.84rem;
       justify-content: center;
-      min-height: 2.45rem;
-    }
-
-    :deep(.clear-button.n-button .n-button__border),
-    :deep(.calculate-button.n-button .n-button__border) {
-      border-color: rgba(255, 255, 255, 0.74) !important;
     }
 
     .control-section {

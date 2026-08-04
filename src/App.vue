@@ -18,8 +18,8 @@
       </nav>
 
       <div id="nav-buttons" aria-label="辅助功能">
-        <button
-          class="icon-button pressable"
+        <liquid-circle-button
+          class="pressable"
           type="button"
           aria-label="关于"
           title="关于"
@@ -28,9 +28,9 @@
           <n-icon size="1.25rem">
             <InfoRound/>
           </n-icon>
-        </button>
-        <button
-          class="icon-button pressable"
+        </liquid-circle-button>
+        <liquid-circle-button
+          class="pressable"
           type="button"
           aria-label="设置"
           title="设置"
@@ -39,7 +39,7 @@
           <n-icon size="1.25rem">
             <SettingsRound/>
           </n-icon>
-        </button>
+        </liquid-circle-button>
       </div>
     </header>
     
@@ -169,9 +169,10 @@
 </template>
 
 <script>
-  import { Rule } from './store/definition'
-  import { NModal, NIcon} from 'naive-ui'
+import { Rule } from './store/definition'
+import { NModal, NIcon} from 'naive-ui'
   import SegmentedControl from './components/SegmentedControl.vue'
+  import LiquidCircleButton from './components/LiquidCircleButton.vue'
   import { SettingsRound,InfoRound } from '@vicons/material'
 
   export default{
@@ -197,7 +198,7 @@
       }
     },
     components: {
-      NModal,NIcon,SegmentedControl,
+      NModal,NIcon,SegmentedControl,LiquidCircleButton,
       SettingsRound,InfoRound
     },
     computed:{
@@ -507,6 +508,13 @@
     position: fixed;
   }
 
+  /* The header is already a blurred surface. Let the glass controls in it
+   * sample the page directly instead of refraction stacking on that blur. */
+  .app-header:has(.liquid-glass-button) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
   .lggc::before,
   .lggc::after {
     border-radius: inherit;
@@ -559,31 +567,15 @@
   .page-switch-forward-leave-active,
   .page-switch-back-enter-active,
   .page-switch-back-leave-active {
-    transform-origin: center top;
-    transition:
-      opacity 220ms ease,
-      transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
-    will-change: opacity, transform;
+    transition: opacity 180ms ease;
+    will-change: opacity;
   }
 
-  .page-switch-forward-enter-from {
-    opacity: 0;
-    transform: translate3d(1.5rem, 0, 0) scale(0.99);
-  }
-
-  .page-switch-forward-leave-to {
-    opacity: 0;
-    transform: translate3d(-1.5rem, 0, 0) scale(0.99);
-  }
-
-  .page-switch-back-enter-from {
-    opacity: 0;
-    transform: translate3d(-1.5rem, 0, 0) scale(0.99);
-  }
-
+  .page-switch-forward-enter-from,
+  .page-switch-forward-leave-to,
+  .page-switch-back-enter-from,
   .page-switch-back-leave-to {
     opacity: 0;
-    transform: translate3d(1.5rem, 0, 0) scale(0.99);
   }
 
   .n-modal-container {
@@ -592,9 +584,11 @@
 
   .n-modal-mask {
     background: rgba(100, 132, 162, 0.18) !important;
-    backdrop-filter: blur(0.9rem) saturate(125%);
-    -webkit-backdrop-filter: blur(0.9rem) saturate(125%);
-    transition: background-color 180ms ease, backdrop-filter 220ms ease;
+    /* Avoid blurring the entire page on every modal open/close. The modal
+     * card itself keeps the glass treatment, while the mask stays cheap. */
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transition: background-color 140ms ease;
   }
 
   .n-base-select-menu,
