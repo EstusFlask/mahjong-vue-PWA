@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mahjong-vue-pwa-v2'
+const CACHE_NAME = 'mahjong-vue-pwa-v3'
 
 const APP_SHELL = self.__PRECACHE_ASSETS__ || [
   './',
