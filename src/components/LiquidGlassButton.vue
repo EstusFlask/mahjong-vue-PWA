@@ -284,11 +284,21 @@ function handleClick(event) {
  * every LiquidGlassButton consistent on touch layouts, including buttons
  * that also receive the app-wide `.pressable` class. */
 @media (hover: none) and (pointer: coarse), (max-width: 799px) {
+  .liquid-glass-button {
+    /* Keep the press responsive, but let the return to rest settle more gently. */
+    transition:
+      color 180ms ease,
+      filter 180ms ease,
+      transform 230ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
   .liquid-glass-button:active:not(:disabled),
   .liquid-glass-button.is-pressing:not(:disabled),
   .liquid-glass-button.pressable:active:not(:disabled),
   .liquid-glass-button.pressable.is-pressing:not(:disabled) {
-    transform: scale(1.04) translateY(-0.02rem) !important;
+    transform: scale(1.2) translateY(-0.03rem) !important;
+    /* Keep the press-in and rebound speeds consistent. */
+    transition-duration: 230ms;
   }
 }
 
