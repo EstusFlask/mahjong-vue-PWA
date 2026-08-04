@@ -280,6 +280,18 @@ function handleClick(event) {
   transform: scale(0.96) translateY(0.04rem);
 }
 
+/* iOS 26's liquid glass interaction grows toward the user's finger. Keep
+ * every LiquidGlassButton consistent on touch layouts, including buttons
+ * that also receive the app-wide `.pressable` class. */
+@media (hover: none) and (pointer: coarse), (max-width: 799px) {
+  .liquid-glass-button:active:not(:disabled),
+  .liquid-glass-button.is-pressing:not(:disabled),
+  .liquid-glass-button.pressable:active:not(:disabled),
+  .liquid-glass-button.pressable.is-pressing:not(:disabled) {
+    transform: scale(1.04) translateY(-0.02rem) !important;
+  }
+}
+
 .liquid-glass-button:focus-visible {
   outline: 0.15rem solid rgba(25, 142, 176, 0.7);
   outline-offset: 0.18rem;

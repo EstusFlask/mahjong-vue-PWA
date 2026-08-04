@@ -167,11 +167,19 @@
                 size="large"
                 :min="0"
                 :disabled="redSelectionActive"
+                @mousedown.capture="preventNumberStepperFocus"
+                @touchstart.capture="preventNumberStepperFocus"
               />
             </label>
             <label class="field-row">
               <span>本场</span>
-              <n-input-number v-model:value="ponba" size="large" :min="0" />
+              <n-input-number
+                v-model:value="ponba"
+                size="large"
+                :min="0"
+                @mousedown.capture="preventNumberStepperFocus"
+                @touchstart.capture="preventNumberStepperFocus"
+              />
             </label>
           </div>
         </div>
@@ -428,6 +436,26 @@ export default {
     },
     isRedTile(name){
       return Boolean(name && name[0] === '0' && ['m','p','s'].includes(name[1]))
+    },
+    preventNumberStepperFocus(event){
+      const isCompactTouchLayout = typeof window !== 'undefined' && (
+        window.innerWidth <= 799
+        || window.matchMedia?.('(pointer: coarse)').matches
+        || window.matchMedia?.('(hover: none)').matches
+      )
+      const target = event.target
+      const isStepperButton = target && typeof target.closest === 'function'
+        && target.closest('.n-input-number .n-button')
+
+      if(isCompactTouchLayout && isStepperButton){
+        // Naive UI's input-number activates the text input from its own
+        // mousedown handler. The surrounding label can also re-activate the
+        // input as its default action, which makes iOS scroll the whole
+        // configuration area upward when the keyboard opens. Cancel both
+        // default paths while keeping the stepper click itself intact.
+        event.preventDefault()
+        event.stopPropagation()
+      }
     },
     redTileCount(name){
       let count = 0
