@@ -20,12 +20,6 @@
     "paths": {
       "@/*": [
         "src/*"
-      ],
-      "@liquid-glass": [
-        "../liquid-glass-vue/src/lib/index.ts"
-      ],
-      "@liquid-glass/*": [
-        "../liquid-glass-vue/src/lib/*"
       ]
     },
     "lib": [

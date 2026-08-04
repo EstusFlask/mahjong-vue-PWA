@@ -1,7 +1,7 @@
 <script setup>
 /* global defineProps, defineEmits */
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
-import { LiquidGlass } from '@liquid-glass'
+import { LiquidGlass } from '@wxperia/liquid-glass-vue'
 
 const GLASS_SETTINGS = Object.freeze({
   displacementScale: 64,
@@ -263,8 +263,10 @@ function handleClick(event) {
 }
 
 .liquid-glass-button--circle .liquid-glass-button__measure {
-  display: inline-flex;
+  align-items: center;
+  display: flex;
   height: 1.25rem;
+  justify-content: center;
   width: 1.25rem;
 }
 

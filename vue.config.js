@@ -1,11 +1,20 @@
 // const { defineConfig } = require('@vue/cli-service')
+const fs = require('fs')
 const path = require('path')
+const webpack = require('webpack')
 // const webpack = require("webpack");
 // module.exports = defineConfig({
 //   transpileDependencies: true
 // })
 
 const PRECACHE_ASSETS_TOKEN = 'self.__PRECACHE_ASSETS__'
+const liquidGlassDist = path.dirname(require.resolve('@wxperia/liquid-glass-vue'))
+const liquidGlassWorker = fs.readdirSync(path.join(liquidGlassDist, 'assets'))
+  .find(file => /^shader-worker-.*\.js$/.test(file))
+
+if (!liquidGlassWorker) {
+  throw new Error('Unable to locate the liquid glass shader worker.')
+}
 
 class InjectPrecacheAssetsPlugin {
   apply(compiler) {
@@ -45,12 +54,13 @@ class InjectPrecacheAssetsPlugin {
 module.exports = {
   publicPath:"/mahjong-vue-PWA/",
   configureWebpack: {
-    resolve: {
-      alias: {
-        '@liquid-glass': path.resolve(__dirname, '../liquid-glass-vue/src/lib')
-      }
-    },
     plugins: [
+      new webpack.NormalModuleReplacementPlugin(
+        /^\/assets\/shader-worker-.*\.js$/,
+        resource => {
+          resource.request = path.join(liquidGlassDist, 'assets', liquidGlassWorker)
+        }
+      ),
       new InjectPrecacheAssetsPlugin()
     ]
   },

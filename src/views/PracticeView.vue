@@ -643,9 +643,11 @@ import { CHIIHOU, HOUTEI_RAOYUI, FIELD_WEST, DOUBLE_RIICHI, CHANKAN, HAITEI_RAOY
 
   .practice-action {
     align-self: flex-end;
+    flex: 0 0 auto;
     font-size: 0.92rem;
     font-weight: 700;
-    min-width: 7.5rem;
+    min-width: 0;
+    width: auto;
   }
 
   @media screen and (max-width: 800px) {

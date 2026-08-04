@@ -8,6 +8,7 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@wxperia/liquid-glass-vue": "^1.0.9",
     "bootstrap": "^5.2.0",
     "core-js": "^3.8.3",
     "debug": "^4.4.3",

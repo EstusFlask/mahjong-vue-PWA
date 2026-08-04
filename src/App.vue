@@ -19,7 +19,7 @@
 
       <div id="nav-buttons" aria-label="辅助功能">
         <liquid-circle-button
-          class="pressable"
+          class="pressable nav-icon-button"
           type="button"
           aria-label="关于"
           title="关于"
@@ -30,7 +30,7 @@
           </n-icon>
         </liquid-circle-button>
         <liquid-circle-button
-          class="pressable"
+          class="pressable nav-icon-button"
           type="button"
           aria-label="设置"
           title="设置"
@@ -60,11 +60,25 @@
       preset="card"
       :style="{width:'min(37.5rem, calc(100vw - 2rem))'}"
       title="设置"
-      closable
+      :closable="false"
       :mask-closable="true"
       :bordered="false"
       @after-leave="updateData"
     >
+      <template #header-extra>
+        <liquid-circle-button
+          class="pressable modal-close-button"
+          type="button"
+          aria-label="关闭设置"
+          title="关闭设置"
+          @click="showSetting=false"
+        >
+          <n-icon size="1.25rem">
+            <CloseRound/>
+          </n-icon>
+        </liquid-circle-button>
+      </template>
+
       <div class="settings-intro">
         <div>
           <p class="modal-kicker">规则偏好</p>
@@ -130,10 +144,24 @@
       preset="card"
       :style="{width:'min(37.5rem, calc(100vw - 2rem))'}"
       title="关于"
-      closable
+      :closable="false"
       :mask-closable="true"
       :bordered="false"
     >
+      <template #header-extra>
+        <liquid-circle-button
+          class="pressable modal-close-button"
+          type="button"
+          aria-label="关闭关于"
+          title="关闭关于"
+          @click="showInfo=false"
+        >
+          <n-icon size="1.25rem">
+            <CloseRound/>
+          </n-icon>
+        </liquid-circle-button>
+      </template>
+
 
       <div>
         <p>
@@ -173,7 +201,7 @@ import { Rule } from './store/definition'
 import { NModal, NIcon} from 'naive-ui'
   import SegmentedControl from './components/SegmentedControl.vue'
   import LiquidCircleButton from './components/LiquidCircleButton.vue'
-  import { SettingsRound,InfoRound } from '@vicons/material'
+  import { CloseRound, SettingsRound,InfoRound } from '@vicons/material'
 
   export default{
     name:"App",
@@ -199,7 +227,7 @@ import { NModal, NIcon} from 'naive-ui'
     },
     components: {
       NModal,NIcon,SegmentedControl,LiquidCircleButton,
-      SettingsRound,InfoRound
+      CloseRound,SettingsRound,InfoRound
     },
     computed:{
       activeSection(){
@@ -442,6 +470,17 @@ import { NModal, NIcon} from 'naive-ui'
     gap: 0.35rem;
   }
 
+  .nav-icon-button.liquid-glass-button {
+    height: 2.5rem;
+    width: 2.5rem;
+  }
+
+  .modal-close-button.liquid-glass-button {
+    color: var(--muted);
+    height: 2.4rem;
+    width: 2.4rem;
+  }
+
   .icon-button {
     align-items: center;
     appearance: none;
@@ -663,19 +702,9 @@ import { NModal, NIcon} from 'naive-ui'
     letter-spacing: -0.03em;
   }
 
-  .custom-card .n-card__close {
-    border-radius: 0.65rem;
-    color: var(--muted);
-    transition: background-color 150ms ease, color 150ms ease, transform 120ms ease;
-  }
-
-  .custom-card .n-card__close:hover {
-    background: rgba(255, 255, 255, 0.72);
-    color: var(--teal-strong);
-  }
-
-  .custom-card .n-card__close:active {
-    transform: scale(0.94);
+  .custom-card .n-card-header__extra {
+    align-items: center;
+    display: flex;
   }
 
   .custom-card a {

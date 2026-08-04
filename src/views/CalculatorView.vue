@@ -1129,6 +1129,10 @@ export default {
     color: var(--success);
   }
 
+  :deep(.calculate-button:disabled) {
+    color: var(--muted);
+  }
+
   :deep(.clear-button:hover:not(:disabled)) {
     color: var(--danger);
   }
