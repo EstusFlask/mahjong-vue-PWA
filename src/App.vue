@@ -1,9 +1,6 @@
 <template>
   <div
     id="root"
-    @pointerdown.capture="handlePressStart"
-    @pointerup.capture="handlePressEnd"
-    @pointercancel.capture="handlePressEnd"
   >
     <header class="app-header lggc">
       <nav class="nav-shell" aria-label="主导航">
@@ -248,6 +245,19 @@ import { NModal, NIcon} from 'naive-ui'
       if(localStorage.getItem('rule')!=null){
         this.rule = JSON.parse(localStorage.getItem('rule'))
       }
+    },
+    mounted(){
+      // Modal content is teleported outside #root, so listen at document level
+      // to keep press feedback working for modal controls as well.
+      document.addEventListener('pointerdown', this.handlePressStart, true)
+      document.addEventListener('pointerup', this.handlePressEnd, true)
+      document.addEventListener('pointercancel', this.handlePressEnd, true)
+    },
+    beforeUnmount(){
+      document.removeEventListener('pointerdown', this.handlePressStart, true)
+      document.removeEventListener('pointerup', this.handlePressEnd, true)
+      document.removeEventListener('pointercancel', this.handlePressEnd, true)
+      this.clearPressedState()
     },
     methods:{
       handlePressStart(event){
