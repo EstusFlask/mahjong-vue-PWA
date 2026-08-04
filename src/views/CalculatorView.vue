@@ -139,7 +139,6 @@
               <span class="control-section-title">牌型参数</span>
               <span class="control-section-note">基础条件</span>
             </div>
-            <span class="section-index">01</span>
           </div>
 
           <div class="field-grid">
@@ -190,7 +189,6 @@
               <span class="control-section-title">役种</span>
               <span class="control-section-note">可选加成</span>
             </div>
-            <span class="section-index">02</span>
           </div>
           <n-checkbox-group v-model:value="yakus" class="yaku-list">
             <n-checkbox v-for="item in yakuName" :key="item.value" size="large"

@@ -37,7 +37,6 @@
             <p class="section-kicker">场况</p>
             <h2>这局发生了什么</h2>
           </div>
-          <span class="panel-mark">INFO</span>
         </div>
 
         <div class="indicator-group">
@@ -68,7 +67,6 @@
             <p class="section-kicker">你的答案</p>
             <h2>{{hintText}}</h2>
           </div>
-          <span class="answer-key">ENTER</span>
         </div>
 
         <n-input ref="input" v-if="hintText=='输入答案'" size="large" class="answer-input"
